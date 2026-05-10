@@ -10,3 +10,4 @@ streamlit-mic-recorder
 python-dotenv
 plotly
 twilio
+supabase
