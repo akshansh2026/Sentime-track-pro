@@ -1,0 +1,12 @@
+streamlit==1.32.0
+newsapi-python
+vaderSentiment
+yfinance
+pandas
+numpy
+google-generativeai
+gTTS
+streamlit-mic-recorder
+python-dotenv
+plotly
+twilio
