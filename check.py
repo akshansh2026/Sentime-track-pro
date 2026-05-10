@@ -14,17 +14,27 @@ from streamlit_mic_recorder import speech_to_text
 from dotenv import load_dotenv
 import streamlit.components.v1 as components
 import plotly.graph_objects as go
-import random # INJECTED SOLUTION: Required for jitter logic
+import random
+from supabase import create_client # INJECTED SOLUTION: For Database
 
-# --- SECURE API KEY LOADING (INJECTED SOLUTION: SECRETS BRIDGE) ---
+# --- SECURE API KEY LOADING ---
 load_dotenv() 
 
-# This allows the app to work on your laptop (.env) AND the Cloud (Secrets)
 NEWS_API_KEY = st.secrets.get("NEWS_API_KEY", os.getenv("NEWS_API_KEY", "YOUR_NEWS_API_KEY_HERE"))
 GEMINI_API_KEY = st.secrets.get("GEMINI_API_KEY", os.getenv("GEMINI_API_KEY", "YOUR_GEMINI_API_KEY_HERE"))
 TWILIO_ACCOUNT_SID = st.secrets.get("TWILIO_ACCOUNT_SID", os.getenv("TWILIO_ACCOUNT_SID"))
 TWILIO_AUTH_TOKEN = st.secrets.get("TWILIO_AUTH_TOKEN", os.getenv("TWILIO_AUTH_TOKEN"))
-TWILIO_PHONE_NUMBER = st.secrets.get("TWILIO_PHONE_NUMBER", os.getenv("TWILIO_PHONE_NUMBER"))
+TWILIO_PHONE_NUMBER = "+18166805637"
+
+# --- INJECTED DATABASE CONNECTION ---
+@st.cache_resource
+def init_db():
+    try:
+        return create_client(st.secrets["SUPABASE_URL"], st.secrets["SUPABASE_KEY"])
+    except Exception as e:
+        return None
+
+db = init_db()
 
 # 1. Page Configuration
 st.set_page_config(page_title="Sentime-Track Pro | Quant Terminal", layout="wide", page_icon="📈")
@@ -39,9 +49,6 @@ if "alerts" not in st.session_state: st.session_state.alerts = []
 if "logged_in" not in st.session_state: st.session_state.logged_in = False
 if "current_user" not in st.session_state: st.session_state.current_user = None
 if "auth_mode" not in st.session_state: st.session_state.auth_mode = "Login"
-if "users_db" not in st.session_state: 
-    # INJECTED SOLUTION: Linked to your verified number for cloud testing
-    st.session_state.users_db = {"admin@startup.com": {"password": "admin", "name": "Admin User", "phone": "+918580594748"}}
 
 # --- DYNAMIC THEME & UI CSS ENGINE ---
 if st.session_state.theme == "Dark":
@@ -101,7 +108,7 @@ st.markdown(f"""
     """, unsafe_allow_html=True)
 
 # =====================================================================
-# AUTHENTICATION GATEWAY
+# AUTHENTICATION GATEWAY (SIDEBAR LOCKED OUT)
 # =====================================================================
 if not st.session_state.logged_in:
     st.markdown("""
@@ -146,12 +153,20 @@ if not st.session_state.logged_in:
             log_pass = st.text_input("Password", type="password", placeholder="••••••••")
             st.markdown("<br>", unsafe_allow_html=True)
             if st.button("AUTHENTICATE SESSION", use_container_width=True, type="primary"):
-                if log_email in st.session_state.users_db and st.session_state.users_db[log_email]["password"] == log_pass:
-                    st.session_state.logged_in = True
-                    st.session_state.current_user = {"email": log_email, **st.session_state.users_db[log_email]}
-                    st.rerun()
+                if db is None:
+                    st.error("Database connection missing. Check Streamlit Secrets.")
                 else:
-                    st.error("Authentication failed. Invalid credentials.")
+                    try:
+                        # INJECTED SOLUTION: DATABASE FETCH
+                        user_query = db.table("users").select("*").eq("email", log_email).eq("password", log_pass).execute()
+                        if user_query.data:
+                            st.session_state.logged_in = True
+                            st.session_state.current_user = {"email": log_email, **user_query.data[0]}
+                            st.rerun()
+                        else:
+                            st.error("Authentication failed. Invalid credentials.")
+                    except Exception as e:
+                        st.error(f"Error accessing database: {e}")
 
         else:
             reg_name = st.text_input("Full Name / Organization")
@@ -160,22 +175,31 @@ if not st.session_state.logged_in:
             reg_pass = st.text_input("Create Password", type="password")
             st.markdown("<br>", unsafe_allow_html=True)
             if st.button("INITIALIZE PROFILE", use_container_width=True, type="primary"):
-                if reg_email in st.session_state.users_db:
-                    st.error("Email already registered. Please login.")
-                elif not reg_email or not reg_pass or not reg_name:
+                if not reg_email or not reg_pass or not reg_name:
                     st.error("Please complete all fields.")
+                elif db is None:
+                    st.error("Database connection missing. Check Streamlit Secrets.")
                 else:
-                    st.session_state.users_db[reg_email] = {"password": reg_pass, "name": reg_name, "phone": reg_phone}
-                    st.success("Registration complete. Switching to login...")
-                    time.sleep(1)
-                    st.session_state.auth_mode = "Login"
-                    st.rerun()
+                    try:
+                        # INJECTED SOLUTION: DATABASE INSERT
+                        db.table("users").insert({
+                            "name": reg_name,
+                            "email": reg_email,
+                            "phone": reg_phone,
+                            "password": reg_pass
+                        }).execute()
+                        st.success("Registration complete. Switching to login...")
+                        time.sleep(1)
+                        st.session_state.auth_mode = "Login"
+                        st.rerun()
+                    except Exception as e:
+                        st.error(f"Error registering user: {e}")
                     
         st.markdown("</div>", unsafe_allow_html=True)
         st.markdown(f"<div style='text-align:center; margin-top:20px;'><p style='color:{sub_text}; font-size:12px;'>© 2026 Sentime-Track OS • Secure Access Gateway</p></div>", unsafe_allow_html=True)
 
 # =====================================================================
-# MAIN APP
+# MAIN APP (ONLY VISIBLE & SIDEBAR ONLY GENERATED IF LOGGED IN)
 # =====================================================================
 else:
     # --- SMART TICKER DICTIONARY ---
@@ -205,12 +229,12 @@ else:
         ai_model = None
         st.sidebar.warning("AI Configuration Error: Check API key in .env file.")
 
-    # --- INJECTED SOLUTION: STABLE DATA ENGINE ---
+    # --- DATA ENGINES (INJECTED SOLUTION: RATE LIMIT ERROR FIX) ---
     @st.cache_data(ttl=3600) 
     def get_asset_info(ticker):
-        for i in range(3): # SOLUTION: 3 Retries to bypass cloud blocks
+        for i in range(3): # Attempt 3 retries for cloud stability
             try:
-                time.sleep(random.uniform(0.5, 1.5)) # SOLUTION: Jitter delay
+                time.sleep(random.uniform(0.5, 1.5)) # Jitter delay to avoid Yahoo Finance ban
                 asset = yf.Ticker(ticker)
                 info = asset.info
                 df = asset.history(period="1y")
@@ -223,7 +247,7 @@ else:
                 return {"name": info.get('longName', ticker), "history": df, "details": info}
             except Exception:
                 if i == 2: return {"name": ticker, "history": pd.DataFrame(), "details": {}}
-                time.sleep(2)
+                time.sleep(2) # Wait before retrying
 
     @st.cache_data(ttl=3600) 
     def get_news(query, company_name):
@@ -322,7 +346,7 @@ else:
 
     # 4. MAIN INTERFACE
     if stock_df.empty and nav not in ["📌 Custom Portfolio", "👤 My Profile"]:
-        st.warning(f"⚠️ Market Data Throttled. Please wait 30 seconds.")
+        st.warning(f"⚠️ Could not find data for {ticker}. The data provider might be rate-limiting requests. Please wait a few moments.")
     else:
         if nav not in ["📌 Custom Portfolio", "👤 My Profile"]:
             st.markdown(f"""
@@ -334,10 +358,10 @@ else:
             last_price = float(stock_df['Close'].iloc[-1])
 
         # -------------------------------------------------------------
-        # MODULE: MY PROFILE (FIXED HTML FORMATTING)
+        # MODULE: MY PROFILE
         # -------------------------------------------------------------
         if nav == "👤 My Profile":
-            user_initial = st.session_state.current_user['name'][0].upper()
+            user_initial = st.session_state.current_user.get('name', '?')[0].upper()
             
             st.markdown(f"""
 <div style="background: linear-gradient(135deg, {grad_1} 0%, {card_bg} 100%); padding: 40px; border-radius: 12px; border: 1px solid {border_col}; margin-bottom: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
@@ -346,7 +370,7 @@ else:
             {user_initial}
         </div>
         <div>
-            <h1 style="color:{text_color}; margin:0; letter-spacing: 1px;">{st.session_state.current_user['name']}</h1>
+            <h1 style="color:{text_color}; margin:0; letter-spacing: 1px;">{st.session_state.current_user.get('name', 'User')}</h1>
             <p style="color:#00CC96; font-size: 14px; margin-top:5px; font-weight: 600;">🟢 PRO SUBSCRIPTION ACTIVE</p>
         </div>
     </div>
@@ -357,9 +381,9 @@ else:
 <div style="background:{card_bg}; padding: 25px; border-radius: 10px; border: 1px solid {border_col}; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 20px;">
     <h5 style="color:{sub_text}; margin-bottom: 20px; font-size: 13px; text-transform: uppercase; letter-spacing: 1px;">Registered Credentials</h5>
     <strong style="font-size: 12px; color:{sub_text};">Email Address</strong><br>
-    <span style="font-size: 16px; color:{text_color}; font-weight: 500;">{st.session_state.current_user['email']}</span><br><br>
+    <span style="font-size: 16px; color:{text_color}; font-weight: 500;">{st.session_state.current_user.get('email', '')}</span><br><br>
     <strong style="font-size: 12px; color:{sub_text};">Phone / SMS Destination</strong><br>
-    <span style="font-size: 16px; color:{text_color}; font-weight: 500;">{st.session_state.current_user['phone']}</span>
+    <span style="font-size: 16px; color:{text_color}; font-weight: 500;">{st.session_state.current_user.get('phone', '')}</span>
 </div>
 """, unsafe_allow_html=True)
             
@@ -492,7 +516,7 @@ else:
                         st.plotly_chart(fig, use_container_width=True)
                     else:
                         st.warning("Not enough historical data to compute a 200-day moving average.")
-            except Exception as e: st.error(f"Algorithmic Backtester Error: {e}")
+            except Exception as e: st.error(f"Backtester Error: {e}")
 
         elif nav == "🚨 SMS Alerts Dashboard":
             st.markdown(f"""
@@ -552,7 +576,7 @@ else:
             </div>
             """, unsafe_allow_html=True)
             
-            c1, col_ex = st.columns(2)
+            c1, c2 = st.columns(2)
             
             with c1:
                 st.markdown(f"<h4 style='color:{text_color};'>1. Download Historical Data (CSV)</h4>", unsafe_allow_html=True)
@@ -560,14 +584,14 @@ else:
                 csv = stock_df.to_csv().encode('utf-8')
                 st.download_button(label="⬇️ DOWNLOAD PROPRIETARY CSV", data=csv, file_name=f"{raw_symbol}_data.csv", mime='text/csv', use_container_width=True)
                 
-            with col_ex:
+            with c2:
                 st.markdown(f"<h4 style='color:{text_color};'>2. Generate Quant Tear Sheet (TXT)</h4>", unsafe_allow_html=True)
                 st.caption("A readable summary of current pricing, RSI, and Risk Metrics for easy sharing.")
                 tear_sheet = f"""
                 ===========================================
                 SENTIME-TRACK PRO: EXECUTIVE TEAR SHEET
                 ===========================================
-                PREPARED FOR: {st.session_state.current_user['name']}
+                PREPARED FOR: {st.session_state.current_user.get('name', 'User')}
                 ASSET: {full_name} ({ticker})
                 DATE: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
                 -------------------------------------------
@@ -640,7 +664,7 @@ else:
                 fig_mc.add_trace(go.Scatter(y=sims.mean(axis=1), mode='lines', line=dict(width=3, color='#00d2ff'), name='AI Median'))
                 fig_mc.update_layout(template="plotly_dark" if st.session_state.theme == "Dark" else "plotly_white", title="50 Path Future Cloud")
                 st.plotly_chart(fig_mc, use_container_width=True)
-            except Exception as e: st.error(f"Predictive Forecaster Error: {e}")
+            except Exception as e: st.error(f"Error: {e}")
 
         elif nav == "Global Macro & Black Swan":
             try:
@@ -668,7 +692,7 @@ else:
                     with c3:
                         entropy = max(min(((aligned_data['Stock'].pct_change().std() * 100) * 5) + (corr_spy * 20) - (corr_gold * 20), 100), 0)
                         st.markdown(f"<div style='background:{card_bg}; padding: 20px; border-radius:10px; border-top: 3px solid #FFD700; border-left:1px solid {border_col}; border-right:1px solid {border_col}; border-bottom:1px solid {border_col}; text-align:center;'><p style='color:{sub_text}; font-size:12px; margin:0;'>BLACK SWAN ENTROPY</p><h2 style='color:#FFD700; margin:10px 0;'>{entropy:.1f}/100</h2></div>", unsafe_allow_html=True)
-            except Exception as e: st.error(f"Global Macro Error: {e}")
+            except Exception as e: st.error(f"Error: {e}")
 
         elif nav == "Algorithmic Risk & Regime":
             try:
@@ -682,7 +706,7 @@ else:
                 elif sma_10 < sma_30 and last_price < sma_10: regime, color = "BEARISH TREND 🐻", "#FF4B4B"
                 else: regime, color = "RANGE BOUND / CHOPPY ⚖️", "#FFD700"
                 st.markdown(f"<div style='background: {card_bg}; border: 1px solid {color}; padding: 35px; border-radius: 12px; text-align: center; margin-top:20px;'><p style='color: {color}; margin: 0; font-weight:bold;'>MARKET REGIME</p><h1 style='color: {text_color};'>{regime}</h1></div>", unsafe_allow_html=True)
-            except Exception as e: st.error(f"Algorithmic Risk Error: {e}")
+            except Exception as e: st.error(f"Error: {e}")
 
         elif nav == "Intraday Liquidity":
             try:
@@ -692,7 +716,7 @@ else:
                 slippage = "LOW RISK" if liquidity_score > 100 else "HIGH RISK"
                 slip_color = "#00CC96" if slippage == "LOW RISK" else "#FF4B4B"
                 st.markdown(f"<div style='background:{card_bg}; padding: 30px; border-radius:10px; border: 1px solid {slip_color}; text-align:center;'><p style='color:{sub_text}; margin:0;'>EXECUTION SLIPPAGE RISK</p><h1 style='color:{slip_color}; font-size: 50px; margin: 10px 0;'>{slippage}</h1><p style='color:{sub_text}; font-size:12px; margin:0;'>Ability to absorb large block orders</p></div>", unsafe_allow_html=True)
-            except Exception as e: st.error(f"Intraday Liquidity Error: {e}")
+            except Exception as e: st.error(f"Error: {e}")
 
         # --- VOICE TERMINAL ---
         if nav not in ["👤 My Profile"]:
