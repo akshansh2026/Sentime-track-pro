@@ -392,7 +392,7 @@ else:
             else:
                 st.error("Invalid payment reference. Enter the correct 12-digit transaction number generated from your banking application.")
 
-    # Shared functional profile node module block wrapper layout logic
+    # Shared professional profile node module block wrapper layout logic
     def render_profile_subsystem():
         user_initial = st.session_state.current_user.get('name', '?')[0].upper()
         st.markdown(f"""
@@ -425,17 +425,36 @@ else:
                     records = db.table("users").select("name, email, payment_key, tier").execute()
                     if records.data:
                         formatted_records = []
+                        total_users = len(records.data)
+                        premium_count = 0
+                        
                         for u in records.data:
-                            tier_tag = "PRO PREMIUM 🟢" if u.get('tier') == 'pro' else "SUPER ROOT ADMIN 👑" if u.get('tier') == 'admin' else "FREE TRIAL 🔴"
-                            # Guard statement fallback checking to prevent column value parsing execution faults
+                            tier_raw = u.get('tier', 'free')
+                            if tier_raw == 'pro':
+                                premium_count += 1
+                                tier_tag = "PRO PREMIUM 🟢"
+                            elif tier_raw == 'admin':
+                                tier_tag = "SUPER ROOT ADMIN 👑"
+                            else:
+                                tier_tag = "FREE TRIAL 🔴"
+                                
                             key_val = u.get('payment_key', 'None') if u.get('payment_key') else 'None'
                             formatted_records.append({
-                                "Customer Identity Name": u.get('name', 'N/A'),
-                                "Email Connection Address": u.get('email', 'N/A'),
-                                "Paid Verification Key (UPI Ref)": key_val,
-                                "Platform Entitlement Tier": tier_tag
+                                "Customer Name": u.get('name', 'N/A'),
+                                "Email Address": u.get('email', 'N/A'),
+                                "UPI Ref ID / Key": key_val,
+                                "Subscription Status": tier_tag
                             })
-                        st.dataframe(pd.DataFrame(formatted_records), use_container_width=True)
+                        
+                        # Professional Enterprise Statistics Summary Layout Cards
+                        m1, m2, m3 = st.columns(3)
+                        m1.metric("Total Registered Nodes", total_users)
+                        m2.metric("Active Premium Subscribers", premium_count)
+                        m3.metric("Gross Platform Revenue Conversion", f"₹{premium_count * 1999:,}")
+                        st.markdown("<br>", unsafe_allow_html=True)
+                        
+                        # Clean Interactive Data Frame Summary Presentation
+                        st.dataframe(pd.DataFrame(formatted_records), use_container_width=True, hide_index=True)
                     else: 
                         st.info("No custom user accounts found inside database storage profiles yet.")
                 except Exception as e: 
@@ -519,7 +538,7 @@ else:
                 """, unsafe_allow_html=True)
                 last_price = float(stock_df['Close'].iloc[-1]) if not stock_df.empty else 0.0
 
-            # --- FREE TIER ALLOWED MODULES ---
+            # --- MODULE ROUTING MAP ---
             if nav == "👤 My Profile":
                 render_profile_subsystem()
 
@@ -529,8 +548,6 @@ else:
                 
                 articles = news_data.get('articles', [])
                 titles = [a['title'] for a in articles if a['title']]
-                
-                # FIXED NAMEERROR VADER SCORE REFERENCE FOR CORE FEED
                 avg_sentiment = sum([vader.polarity_scores(t)['compound'] for t in titles])/len(titles) if titles else 0
 
                 rsi_color = "#FF4B4B" if current_rsi > 70 else "#00CC96" if current_rsi < 30 else "#FFD700"
@@ -872,15 +889,14 @@ else:
             "Launch Volatility Matrix",
             "🚨 AI Review Competitor Defect Miner",        
             "📊 Dynamic Elasticity Optimization Curve",
-            "👤 My Profile" # SHIFTED PROFILE NODE DIRECTLY INTO SAAS WORKSPACE MATRIX SELECTOR
+            "👤 My Profile" 
         ])
         
         ecom_df = fetch_ecom_market_data(target_keyword)
         ecom_latest = ecom_df.iloc[-1]
         reviews = fetch_competitor_reviews(target_keyword)
         
-        # FIXED TO PREVENT NAMEERRORS ON RAW SCORING CALCULATIONS
-        sentiment_scores = [vader.polarity_scores(r)['get']('compound', 0.0) if isinstance(vader.polarity_scores(r), dict) else vader.polarity_scores(r) for r in reviews]
+        # PROPER REFACTORED INLINE COMPENSATORS TO RESOLVE COMPILING KEYERRORS
         sentiment_scores = [vader.polarity_scores(r)['compound'] for r in reviews]
         avg_sentiment = np.mean(sentiment_scores)
         ecom_opportunity_score = int((ecom_latest['Momentum_Index'] * 0.4) + ((avg_sentiment + 1) * 50 * 0.6))
@@ -889,6 +905,7 @@ else:
             st.markdown(f"<div class='company-header'><h2>🛍️ Product Niche Intel Dashboard: {target_keyword.upper()}</h2></div>", unsafe_allow_html=True)
             col1, col2, col3, col4 = st.columns(4)
             col1.metric("Avg Buy-Box Price", f"${ecom_latest['Price']:.2f}")
+            col2.metric("Daily Order Velocity", f"{int(ecom_latest['Volume'])} units")
             col2.metric("Daily Order Velocity", f"{int(ecom_latest['Volume'])} units")
             col3.metric("Category Momentum Index", f"{ecom_latest['Momentum_Index']:.1f}")
             col4.metric("Product Opportunity Rating", f"{ecom_opportunity_score}/100")
