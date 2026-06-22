@@ -50,6 +50,9 @@ if "logged_in" not in st.session_state: st.session_state.logged_in = False
 if "current_user" not in st.session_state: st.session_state.current_user = None
 if "auth_mode" not in st.session_state: st.session_state.auth_mode = "Login"
 
+# Global Instance Declaration for VADER NLP Engine to Fix NameErrors
+vader = SentimentIntensityAnalyzer()
+
 # ==========================================
 # [ADD-ON] NEW E-COMMERCE DATA ENGINE
 # ==========================================
@@ -168,22 +171,6 @@ if not st.session_state.logged_in:
 
         st.markdown("<div class='auth-box'>", unsafe_allow_html=True)
         
-        # --- EXCLUSIVE SYSTEM ROOT BYPASS CONFIG FOR AKSHANSH (ADMIN NODE) ---
-        st.markdown("<p style='color:#00CC96; font-size:11px; text-align:center; font-weight:bold; letter-spacing:1.5px; margin-bottom:5px;'>🎖️ EXCLUSIVE ADMIN SECURE GATEWAY</p>", unsafe_allow_html=True)
-        if st.button("⚡ EXECUTE ROOT BYPASS (MASTER ADMIN PLATFORM ACCESS)", use_container_width=True, type="primary"):
-            st.session_state.logged_in = True
-            st.session_state.current_user = {
-                "name": "Akshansh (Platform Owner)", 
-                "email": "akshansh@sentimetrack.pro", 
-                "phone": "+919999999999", 
-                "tier": "admin"
-            }
-            st.success("Bypass Executed. Welcome back, Admin Akshansh!")
-            time.sleep(0.5)
-            st.rerun()
-            
-        st.markdown("<hr style='border-color:#3a7bd5; opacity:0.2; margin:15px 0;'>", unsafe_allow_html=True)
-
         auth_col1, auth_col2 = st.columns(2)
         with auth_col1:
             if st.button("LOGIN", use_container_width=True, type="secondary" if st.session_state.auth_mode == "Signup" else "primary"): 
@@ -201,7 +188,19 @@ if not st.session_state.logged_in:
             log_pass = st.text_input("Password", type="password", placeholder="••••••••")
             st.markdown("<br>", unsafe_allow_html=True)
             if st.button("AUTHENTICATE SESSION", use_container_width=True, type="primary"):
-                if db is None:
+                # HARDCODED AUTOMATIC ADMIN REDIRECTION MATRIX FOR AKSHANSH
+                if log_email == "akshansh103@gmail.com" and log_pass == "Akshansh1234@":
+                    st.session_state.logged_in = True
+                    st.session_state.current_user = {
+                        "name": "Akshansh (Platform Owner)", 
+                        "email": "akshansh103@gmail.com", 
+                        "phone": "+919999999999", 
+                        "tier": "admin"
+                    }
+                    st.success("Master Admin Node Confirmed. Launching Analytics Core...")
+                    time.sleep(0.5)
+                    st.rerun()
+                elif db is None:
                     st.session_state.logged_in = True
                     st.session_state.current_user = {"name": "Sandbox Trial Node", "email": log_email, "phone": "+919999999999", "tier": "free"}
                     st.rerun()
@@ -362,14 +361,14 @@ else:
     
     user_tier = st.session_state.current_user.get("tier", "free")
     
-    # Custom 1999 UPI Monetization Gateway
+    # Dynamic 1999 UPI Monetization Gateway
     def render_paywall():
         st.markdown(f"""
             <div style="background: linear-gradient(135deg, #2a0f14 0%, {card_bg} 100%); padding: 30px; border-radius: 12px; border: 2px solid #ff4b4b; margin: 20px 0; text-align: center;">
                 <h3 style="color:#ff4b4b; margin:0; font-size:22px; letter-spacing:1px;">🔒 MODULAR PREMIUM PAYWALL</h3>
                 <p style="color:{sub_text}; font-size:14px; margin-top:8px;">The module you selected is an elite capability restricted entirely to Pro Premium subscribers.</p>
                 <hr style="border-color:#ff4b4b; opacity:0.2; margin:20px 0;">
-                <p style="color:{text_color}; font-size:15px; font-weight:600;">Scan QR Code via UPI to instantly unlock instant platform-wide access:</p>
+                <p style="color:{text_color}; font-size:15px; font-weight:600;">Scan QR Code via UPI to instantly unlock platform-wide access:</p>
                 <div style="text-align:center; margin:20px 0;">
                     <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=akshansh103-3@okhdfcbank&pn=SentimeTrackPro&am=1999.00&cu=INR" style="border: 4px solid white; border-radius:8px; width:150px;"/>
                     <p style="color:#00CC96; font-size:13px; font-family:monospace; font-weight:bold; margin-top:8px;">💵 Premium Fee: ₹1,999 / Month</p>
@@ -463,7 +462,7 @@ else:
                 """, unsafe_allow_html=True)
                 last_price = float(stock_df['Close'].iloc[-1]) if not stock_df.empty else 0.0
 
-            # --- FREE TIER ALLOWED: MY PROFILE (WITH B2B METRICS HARNESS) ---
+            # --- FREE TIER ALLOWED: MY PROFILE ---
             if nav == "👤 My Profile":
                 user_initial = st.session_state.current_user.get('name', '?')[0].upper()
                 st.markdown(f"""
@@ -480,12 +479,11 @@ else:
                 </div>
                 """, unsafe_allow_html=True)
                 
-                # --- EXCLUSIVE B2B SALES ANALYTICS HUB FOR ADMIN NODE ---
+                # --- EXCLUSIVE B2B SUBSCRIBER MANAGEMENT HUB FOR ADMIN NO LIMITS BYPASS ---
                 if user_tier == "admin":
                     st.markdown("### 📊 Platform Monetization & Subscriber Analytics Hub")
                     if db is None:
                         st.info("Operating in standalone sandbox environment. Populate Supabase tables to audit cross-network users.")
-                        # Simulated Fallback UI metrics arrays
                         mock_users = pd.DataFrame({
                             "Full Name": ["Rajesh Sharma", "Amit Patel", "Vikram Singh", "Priya Nair"],
                             "Email Vector": ["rajesh@trade.in", "amit@ecomintel.com", "v.singh@quant.co", "priya@growth.in"],
@@ -526,7 +524,7 @@ else:
                 quant_score = (100 - current_rsi) * 0.4 + (avg_sentiment * 30) + 20
 
                 with col1: st.markdown(f"<div class='stat-card'><h5 style='margin:0; color:{sub_text}; font-size:13px;'>Sentiment Score</h5><h3 style='color:#00d2ff; margin:5px 0;'>{avg_sentiment:.2f}</h3></div>", unsafe_allow_html=True)
-                with col2: st.markdown(f"<div class='stat-card'><h5 style='margin:0; color:{sub_text}; font-size:13px;'>RSI (14)</h5><h3 style='color:{rsi_color}; margin:5px 0;'>{current_rsi:.1f}</h3></div>", unsafe_allow_html=True)
+                with col2: st.markdown(f"<div class='stat-card'><h5 style='margin:0; color:{rsi_color}; font-size:13px;'>RSI (14)</h5><h3 style='color:{rsi_color}; margin:5px 0;'>{current_rsi:.1f}</h3></div>", unsafe_allow_html=True)
                 with col3: st.markdown(f"<div class='stat-card'><h5 style='margin:0; color:{sub_text}; font-size:13px;'>Quant Score</h5><h3 style='color:#3a7bd5; margin:5px 0;'>{quant_score:.0f}/100</h3></div>", unsafe_allow_html=True)
                 with col4:
                     st.markdown(f"<h5 style='margin:0 0 5px 0; font-size:14px; color:{text_color};'>Fundamental Check</h5>", unsafe_allow_html=True)
@@ -593,7 +591,7 @@ else:
                                     """, unsafe_allow_html=True)
                         except: pass
 
-            # === SUBSCRIPTION GATE FOR ADVANCED QUANT EXTRACTIONS ===
+            # === SUBSCRIPTION GATEWAY ENFORCEMENT ON RECURRING CHANNELS ===
             elif user_tier not in ["pro", "admin"]:
                 render_paywall()
 
