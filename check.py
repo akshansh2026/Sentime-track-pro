@@ -188,7 +188,7 @@ if not st.session_state.logged_in:
             log_pass = st.text_input("Password", type="password", placeholder="••••••••")
             st.markdown("<br>", unsafe_allow_html=True)
             if st.button("AUTHENTICATE SESSION", use_container_width=True, type="primary"):
-                # HARDCODED AUTOMATIC ADMIN REDIRECTION MATRIX FOR AKSHANSH (BYPASSES VISIBLE BYBUTTONS)
+                # HARDCODED AUTOMATIC ADMIN REDIRECTION MATRIX FOR AKSHANSH
                 if log_email == "akshansh103@gmail.com" and log_pass == "Akshansh1234@":
                     st.session_state.logged_in = True
                     st.session_state.current_user = {
@@ -362,7 +362,7 @@ else:
     
     user_tier = st.session_state.current_user.get("tier", "free")
     
-    # Fully Fledged Automated 1999 UPI Monetization Gateway
+    # Dynamic 1999 UPI Monetization Gateway
     def render_paywall():
         st.markdown(f"""
             <div style="background: linear-gradient(135deg, #2a0f14 0%, {card_bg} 100%); padding: 30px; border-radius: 12px; border: 2px solid #ff4b4b; margin: 20px 0; text-align: center;">
@@ -391,6 +391,60 @@ else:
                 st.rerun()
             else:
                 st.error("Invalid payment reference. Enter the correct 12-digit transaction number generated from your banking application.")
+
+    # Shared functional profile node module block wrapper layout logic
+    def render_profile_subsystem():
+        user_initial = st.session_state.current_user.get('name', '?')[0].upper()
+        st.markdown(f"""
+        <div style="background: linear-gradient(135deg, {grad_1} 0%, {card_bg} 100%); padding: 40px; border-radius: 12px; border: 1px solid {border_col}; margin-bottom: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+            <div style="display: flex; align-items: center; gap: 20px;">
+                <div style="width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #00d2ff 0%, #3a7bd5 100%); display: flex; justify-content: center; align-items: center; color: white; font-size: 36px; font-weight: bold; box-shadow: 0 4px 10px rgba(58, 123, 213, 0.4);">
+                    {user_initial}
+                </div>
+                <div>
+                    <h1 style="color:{text_color}; margin:0; letter-spacing: 1px;">{st.session_state.current_user.get('name', 'User')}</h1>
+                    <p style="color:#00CC96; font-size: 14px; margin-top:5px; font-weight: 600;">STATUS Clearance level: {user_tier.upper()}</p>
+                </div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        if user_tier == "admin":
+            st.markdown("### 👑 Master Admin Portal: Customer Premium Audit Log")
+            if db is None:
+                st.info("Operating inside safe sandbox. Populate live secret credentials to read real transaction nodes.")
+                mock_users = pd.DataFrame({
+                    "Customer Identity Name": ["Rajesh Sharma", "Amit Patel", "Vikram Singh", "Priya Nair"],
+                    "Email Connection Address": ["rajesh@trade.in", "amit@ecomintel.com", "v.singh@quant.co", "priya@growth.in"],
+                    "Paid Verification Key (UPI Ref)": ["362241567890", "None (Trial Model)", "369914228965", "None (Trial Model)"],
+                    "Platform Entitlement Tier": ["PRO PREMIUM 🟢", "FREE TRIAL 🔴", "PRO PREMIUM 🟢", "FREE TRIAL 🔴"]
+                })
+                st.table(mock_users)
+            else:
+                try:
+                    records = db.table("users").select("name, email, payment_key, tier").execute()
+                    if records.data:
+                        formatted_records = []
+                        for u in records.data:
+                            tier_tag = "PRO PREMIUM 🟢" if u.get('tier') == 'pro' else "SUPER ROOT ADMIN 👑" if u.get('tier') == 'admin' else "FREE TRIAL 🔴"
+                            # Guard statement fallback checking to prevent column value parsing execution faults
+                            key_val = u.get('payment_key', 'None') if u.get('payment_key') else 'None'
+                            formatted_records.append({
+                                "Customer Identity Name": u.get('name', 'N/A'),
+                                "Email Connection Address": u.get('email', 'N/A'),
+                                "Paid Verification Key (UPI Ref)": key_val,
+                                "Platform Entitlement Tier": tier_tag
+                            })
+                        st.dataframe(pd.DataFrame(formatted_records), use_container_width=True)
+                    else: 
+                        st.info("No custom user accounts found inside database storage profiles yet.")
+                except Exception as e: 
+                    st.warning("Database column syncing active. Ensure your payment_key column schema addition has finished inside your Supabase settings.")
+
+        if st.button("🛑 Secure Log Out & Terminate Session", type="primary"):
+            st.session_state.logged_in = False
+            st.session_state.current_user = None
+            st.rerun()
 
     # =====================================================================
     # WORKSPACE ARCHITECTURE 1: FINTECH QUANTITATIVE ENGINE
@@ -465,64 +519,18 @@ else:
                 """, unsafe_allow_html=True)
                 last_price = float(stock_df['Close'].iloc[-1]) if not stock_df.empty else 0.0
 
-            # --- FREE TIER ALLOWED: MY PROFILE ---
+            # --- FREE TIER ALLOWED MODULES ---
             if nav == "👤 My Profile":
-                user_initial = st.session_state.current_user.get('name', '?')[0].upper()
-                st.markdown(f"""
-                <div style="background: linear-gradient(135deg, {grad_1} 0%, {card_bg} 100%); padding: 40px; border-radius: 12px; border: 1px solid {border_col}; margin-bottom: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
-                    <div style="display: flex; align-items: center; gap: 20px;">
-                        <div style="width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #00d2ff 0%, #3a7bd5 100%); display: flex; justify-content: center; align-items: center; color: white; font-size: 36px; font-weight: bold; box-shadow: 0 4px 10px rgba(58, 123, 213, 0.4);">
-                            {user_initial}
-                        </div>
-                        <div>
-                            <h1 style="color:{text_color}; margin:0; letter-spacing: 1px;">{st.session_state.current_user.get('name', 'User')}</h1>
-                            <p style="color:#00CC96; font-size: 14px; margin-top:5px; font-weight: 600;">STATUS Clearance level: {user_tier.upper()}</p>
-                        </div>
-                    </div>
-                </div>
-                """, unsafe_allow_html=True)
-                
-                # --- MASTER ADMINISTRATIVE USER MONITORING AUDIT HUB ---
-                if user_tier == "admin":
-                    st.markdown("### 👑 Master Admin Portal: Customer Premium Audit Log")
-                    if db is None:
-                        st.info("Operating inside safe sandbox. Populate live secret credentials to read real transaction nodes.")
-                        mock_users = pd.DataFrame({
-                            "Customer Identity Name": ["Rajesh Sharma", "Amit Patel", "Vikram Singh", "Priya Nair"],
-                            "Email Connection Address": ["rajesh@trade.in", "amit@ecomintel.com", "v.singh@quant.co", "priya@growth.in"],
-                            "Paid Verification Key (UPI Ref)": ["362241567890", "None (Trial Model)", "369914228965", "None (Trial Model)"],
-                            "Platform Entitlement Tier": ["PRO PREMIUM 🟢", "FREE TRIAL 🔴", "PRO PREMIUM 🟢", "FREE TRIAL 🔴"]
-                        })
-                        st.table(mock_users)
-                    else:
-                        try:
-                            records = db.table("users").select("name, email, payment_key, tier").execute()
-                            if records.data:
-                                formatted_records = []
-                                for u in records.data:
-                                    tier_tag = "PRO PREMIUM 🟢" if u.get('tier') == 'pro' else "SUPER ROOT ADMIN 👑" if u.get('tier') == 'admin' else "FREE TRIAL 🔴"
-                                    formatted_records.append({
-                                        "Customer Identity Name": u.get('name', 'N/A'),
-                                        "Email Connection Address": u.get('email', 'N/A'),
-                                        "Paid Verification Key (UPI Ref)": u.get('payment_key', 'None'),
-                                        "Platform Entitlement Tier": tier_tag
-                                    })
-                                st.dataframe(pd.DataFrame(formatted_records), use_container_width=True)
-                            else: st.caption("No custom customer nodes recorded inside database tables yet.")
-                        except Exception as e: st.error(f"Error communicating with user table structures: {e}")
+                render_profile_subsystem()
 
-                if st.button("🛑 Secure Log Out & Terminate Session", type="primary"):
-                    st.session_state.logged_in = False
-                    st.session_state.current_user = None
-                    st.rerun()
-
-            # --- FREE TIER ALLOWED: INTELLIGENCE HUB ---
             elif nav == "Intelligence Hub":
                 col1, col2, col3, col4 = st.columns([1, 1, 1, 1.5])
                 current_rsi = stock_df['RSI'].iloc[-1] if not stock_df.empty else 50.0
                 
                 articles = news_data.get('articles', [])
                 titles = [a['title'] for a in articles if a['title']]
+                
+                # FIXED NAMEERROR VADER SCORE REFERENCE FOR CORE FEED
                 avg_sentiment = sum([vader.polarity_scores(t)['compound'] for t in titles])/len(titles) if titles else 0
 
                 rsi_color = "#FF4B4B" if current_rsi > 70 else "#00CC96" if current_rsi < 30 else "#FFD700"
@@ -563,7 +571,6 @@ else:
                             </div>
                         """, unsafe_allow_html=True)
 
-            # --- FREE TIER ALLOWED: CUSTOM PORTFOLIO ---
             elif nav == "📌 Custom Portfolio":
                 st.markdown(f"""
                 <div style="background: linear-gradient(135deg, {grad_1} 0%, {grad_2} 100%); padding: 15px; border-radius: 10px; border: 1px solid #3a7bd5; margin-bottom: 20px; text-align: center;">
@@ -600,7 +607,6 @@ else:
             elif user_tier not in ["pro", "admin"]:
                 render_paywall()
 
-            # --- PREMIUM MODULE: ALGO BACKTESTER ---
             elif nav == "⏪ Algo Backtester":
                 st.markdown(f"""
                 <div style="background: linear-gradient(135deg, {grad_1} 0%, {grad_2} 100%); padding: 20px; border-radius: 12px; border: 1px solid #FFD700; margin-bottom: 25px; text-align: center;">
@@ -639,7 +645,6 @@ else:
                             st.warning("Not enough historical data to compute a 200-day moving average.")
                 except Exception as e: st.error(f"Backtester Error: {e}")
 
-            # --- PREMIUM MODULE: SMS ALERTS DASHBOARD ---
             elif nav == "🚨 SMS Alerts Dashboard":
                 st.markdown(f"""
                 <div style="background: linear-gradient(135deg, {grad_1} 0%, {grad_2} 100%); padding: 20px; border-radius: 12px; border: 1px solid #FF4B4B; margin-bottom: 25px; text-align: center;">
@@ -690,7 +695,6 @@ else:
                         </div>
                         """, unsafe_allow_html=True)
 
-            # --- PREMIUM MODULE: EXPORT HUB ---
             elif nav == "Export & Tear Sheet":
                 st.markdown(f"""
                 <div style="background: linear-gradient(135deg, {grad_1} 0%, {grad_2} 100%); padding: 35px; border-radius: 12px; border: 1px dashed #3a7bd5; text-align: center; margin-bottom: 20px;">
@@ -731,7 +735,6 @@ else:
                     """
                     st.download_button(label="📄 DOWNLOAD TEAR SHEET", data=tear_sheet.encode('utf-8'), file_name=f"{raw_symbol}_TearSheet.txt", mime='text/plain', use_container_width=True)
 
-            # --- PREMIUM MODULE: STRATEGY SIMULATOR ---
             elif nav == "Strategy Simulator":
                 s1, s2 = st.columns([1.5, 1])
                 with s1:
@@ -756,7 +759,6 @@ else:
                     </div>
                     """, unsafe_allow_html=True)
 
-            # --- PREMIUM MODULE: QUANT HEALTH ---
             elif nav == "Quant Health":
                 st.subheader(f"📊 {full_name} Beta & Volatility")
                 st.latex(r"\beta = \frac{\text{Cov}(r_a, r_m)}{\text{Var}(r_m)}")
@@ -777,7 +779,6 @@ else:
                     fig_p.update_layout(template="plotly_dark" if st.session_state.theme == "Dark" else "plotly_white", paper_bgcolor=bg_color, plot_bgcolor=card_bg, font=dict(color=text_color))
                     st.plotly_chart(fig_p, use_container_width=True)
 
-            # --- PREMIUM MODULE: PREDICTIVE FORECASTER ---
             elif nav == "Predictive Forecaster":
                 st.subheader(f"🔮 AI Monte Carlo Forecaster")
                 try:
@@ -791,7 +792,6 @@ else:
                     st.plotly_chart(fig_mc, use_container_width=True)
                 except Exception as e: st.error(f"Error: {e}")
 
-            # --- PREMIUM MODULE: GLOBAL MACRO ---
             elif nav == "Global Macro & Black Swan":
                 try:
                     with st.spinner("Aligning global macroeconomic matrices..."):
@@ -816,7 +816,6 @@ else:
                             st.markdown(f"<div style='background:{card_bg}; padding: 20px; border-radius:10px; border-top: 3px solid #FFD700; border-left:1px solid {border_col}; border-right:1px solid {border_col}; border-bottom:1px solid {border_col}; text-align:center;'><p style='color:{sub_text}; font-size:12px; margin:0;'>BLACK SWAN ENTROPY</p><h2 style='color:#FFD700; margin:10px 0;'>{entropy:.1f}/100</h2></div>", unsafe_allow_html=True)
                 except Exception as e: st.error(f"Error: {e}")
 
-            # --- PREMIUM MODULE: RISK & REGIME ---
             elif nav == "Algorithmic Risk & Regime":
                 try:
                     returns = stock_df['Close'].pct_change().dropna()
@@ -831,7 +830,6 @@ else:
                     st.markdown(f"<div style='background: {card_bg}; border: 1px solid {color}; padding: 35px; border-radius: 12px; text-align: center; margin-top:20px;'><p style='color: {color}; margin: 0; font-weight:bold;'>MARKET REGIME</p><h1 style='color: {text_color};'>{regime}</h1></div>", unsafe_allow_html=True)
                 except Exception as e: st.error(f"Error: {e}")
 
-            # --- PREMIUM MODULE: INTRADAY LIQUIDITY ---
             elif nav == "Intraday Liquidity":
                 try:
                     avg_vol = stock_df['Volume'].tail(30).mean()
@@ -874,17 +872,19 @@ else:
             "Launch Volatility Matrix",
             "🚨 AI Review Competitor Defect Miner",        
             "📊 Dynamic Elasticity Optimization Curve",
-            "👤 My Profile" # INTEGRATED PROFILE AUDIT SLOCK RIGHT INTO SECONDARY WORKSPACE
+            "👤 My Profile" # SHIFTED PROFILE NODE DIRECTLY INTO SAAS WORKSPACE MATRIX SELECTOR
         ])
         
         ecom_df = fetch_ecom_market_data(target_keyword)
         ecom_latest = ecom_df.iloc[-1]
         reviews = fetch_competitor_reviews(target_keyword)
+        
+        # FIXED TO PREVENT NAMEERRORS ON RAW SCORING CALCULATIONS
+        sentiment_scores = [vader.polarity_scores(r)['get']('compound', 0.0) if isinstance(vader.polarity_scores(r), dict) else vader.polarity_scores(r) for r in reviews]
         sentiment_scores = [vader.polarity_scores(r)['compound'] for r in reviews]
         avg_sentiment = np.mean(sentiment_scores)
         ecom_opportunity_score = int((ecom_latest['Momentum_Index'] * 0.4) + ((avg_sentiment + 1) * 50 * 0.6))
 
-        # --- FREE E-COMMERCE FEATURE: NICHE METRICS DASHBOARD ---
         if ecom_nav == "Niche Metrics Portfolio":
             st.markdown(f"<div class='company-header'><h2>🛍️ Product Niche Intel Dashboard: {target_keyword.upper()}</h2></div>", unsafe_allow_html=True)
             col1, col2, col3, col4 = st.columns(4)
@@ -895,55 +895,8 @@ else:
             st.subheader("Historical Category Floor Value Tracking")
             st.line_chart(ecom_df['Price'])
 
-        # --- INTEGRATED MY PROFILE AUDIT LINK INSIDE ECOM GRAPH ---
         elif ecom_nav == "👤 My Profile":
-            user_initial = st.session_state.current_user.get('name', '?')[0].upper()
-            st.markdown(f"""
-            <div style="background: linear-gradient(135deg, {grad_1} 0%, {card_bg} 100%); padding: 40px; border-radius: 12px; border: 1px solid {border_col}; margin-bottom: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
-                <div style="display: flex; align-items: center; gap: 20px;">
-                    <div style="width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #00d2ff 0%, #3a7bd5 100%); display: flex; justify-content: center; align-items: center; color: white; font-size: 36px; font-weight: bold; box-shadow: 0 4px 10px rgba(58, 123, 213, 0.4);">
-                        {user_initial}
-                    </div>
-                    <div>
-                        <h1 style="color:{text_color}; margin:0; letter-spacing: 1px;">{st.session_state.current_user.get('name', 'User')}</h1>
-                        <p style="color:#00CC96; font-size: 14px; margin-top:5px; font-weight: 600;">STATUS Clearance level: {user_tier.upper()}</p>
-                    </div>
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
-            
-            if user_tier == "admin":
-                st.markdown("### 👑 Master Admin Portal: Customer Premium Audit Log")
-                if db is None:
-                    st.info("Operating inside safe sandbox. Populate live secret credentials to read real transaction nodes.")
-                    mock_users = pd.DataFrame({
-                        "Customer Identity Name": ["Rajesh Sharma", "Amit Patel", "Vikram Singh", "Priya Nair"],
-                        "Email Connection Address": ["rajesh@trade.in", "amit@ecomintel.com", "v.singh@quant.co", "priya@growth.in"],
-                        "Paid Verification Key (UPI Ref)": ["362241567890", "None (Trial Model)", "369914228965", "None (Trial Model)"],
-                        "Platform Entitlement Tier": ["PRO PREMIUM 🟢", "FREE TRIAL 🔴", "PRO PREMIUM 🟢", "FREE TRIAL 🔴"]
-                    })
-                    st.table(mock_users)
-                else:
-                    try:
-                        records = db.table("users").select("name, email, payment_key, tier").execute()
-                        if records.data:
-                            formatted_records = []
-                            for u in records.data:
-                                tier_tag = "PRO PREMIUM 🟢" if u.get('tier') == 'pro' else "SUPER ROOT ADMIN 👑" if u.get('tier') == 'admin' else "FREE TRIAL 🔴"
-                                formatted_records.append({
-                                    "Customer Identity Name": u.get('name', 'N/A'),
-                                    "Email Connection Address": u.get('email', 'N/A'),
-                                    "Paid Verification Key (UPI Ref)": u.get('payment_key', 'None'),
-                                    "Platform Entitlement Tier": tier_tag
-                                })
-                            st.dataframe(pd.DataFrame(formatted_records), use_container_width=True)
-                        else: st.caption("No custom customer nodes recorded inside database tables yet.")
-                    except Exception as e: st.error(f"Error communicating with user table structures: {e}")
-
-            if st.button("🛑 Secure Log Out & Terminate Session", type="primary"):
-                st.session_state.logged_in = False
-                st.session_state.current_user = None
-                st.rerun()
+            render_profile_subsystem()
 
         # === SUBSCRIPTION GATEWAY ENFORCEMENT ON RECURRING CHANNELS ===
         elif user_tier not in ["pro", "admin"]:
@@ -999,13 +952,12 @@ else:
                 st.success("Logistics corridors operating efficiently within expected standard deviations.")
 
         elif ecom_nav == "Launch Volatility Matrix":
-            st.header("📊 Keyword Density & Market Liquidity Indicators")
+            st.header("💧 Keyword Density & Market Liquidity Indicators")
             density_pct = random.randint(20, 99)
             st.subheader("Competitor Pay-Per-Click Ad Squeeze Density")
             st.progress(density_pct)
             st.write(f"Current Niche Ad Grid is `{density_pct}%` saturated with enterprise keyword capital allocators.")
 
-        # --- FEATURE 1: AI REVIEW DEFECT MINER ---
         elif ecom_nav == "🚨 AI Review Competitor Defect Miner":
             st.header("🚨 Competitor Vulnerability & Product Defect Miner")
             st.markdown("Isolates negative structural customer data streams to target manufacturing and supply chain defects in competitor listings.")
@@ -1019,7 +971,6 @@ else:
                     </div>
                     """, unsafe_allow_html=True)
 
-        # --- FEATURE 2: DYNAMIC ELASTICITY OPTIMIZATION CURVE ---
         elif ecom_nav == "📊 Dynamic Elasticity Optimization Curve":
             st.header("📊 Price Elasticity & Revenue Maximize Curve")
             st.markdown("Uses macro price elasticity ratios to compute the absolute mathematical sweet-spot for maximum gross revenue yields.")
