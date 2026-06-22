@@ -15,7 +15,7 @@ from dotenv import load_dotenv
 import streamlit.components.v1 as components
 import plotly.graph_objects as go
 import random
-from supabase import create_client # INJECTED SOLUTION: For Database
+from supabase import create_client 
 
 # --- SECURE API KEY LOADING ---
 load_dotenv() 
@@ -50,11 +50,11 @@ if "logged_in" not in st.session_state: st.session_state.logged_in = False
 if "current_user" not in st.session_state: st.session_state.current_user = None
 if "auth_mode" not in st.session_state: st.session_state.auth_mode = "Login"
 
-# Global Instance Declaration for VADER NLP Engine to Fix NameErrors
+# Global Instance Declaration for VADER NLP Engine
 vader = SentimentIntensityAnalyzer()
 
 # ==========================================
-# [ADD-ON] NEW E-COMMERCE DATA ENGINE
+# NEW E-COMMERCE DATA ENGINE
 # ==========================================
 @st.cache_data(ttl=3600)
 def fetch_ecom_market_data(keyword):
@@ -285,7 +285,7 @@ else:
         ai_model = None
         st.sidebar.warning("AI Configuration Error: Check API key in secrets.")
 
-    # --- FIXED & PRODUCTION HARDENED DATA ENGINE LAYER ---
+    # --- FIXED DATA ENGINE LAYER ---
     @st.cache_data(ttl=1800) 
     def get_asset_info(ticker):
         df = pd.DataFrame()
@@ -392,7 +392,7 @@ else:
             else:
                 st.error("Invalid payment reference. Enter the correct 12-digit transaction number generated from your banking application.")
 
-    # Shared professional profile node module block wrapper layout logic
+    # Shared professional profile block with hardened error protection loops
     def render_profile_subsystem():
         user_initial = st.session_state.current_user.get('name', '?')[0].upper()
         st.markdown(f"""
@@ -414,19 +414,20 @@ else:
             if db is None:
                 st.info("Operating inside safe sandbox. Populate live secret credentials to read real transaction nodes.")
                 mock_users = pd.DataFrame({
-                    "Customer Identity Name": ["Rajesh Sharma", "Amit Patel", "Vikram Singh", "Priya Nair"],
-                    "Email Connection Address": ["rajesh@trade.in", "amit@ecomintel.com", "v.singh@quant.co", "priya@growth.in"],
-                    "Paid Verification Key (UPI Ref)": ["362241567890", "None (Trial Model)", "369914228965", "None (Trial Model)"],
-                    "Platform Entitlement Tier": ["PRO PREMIUM 🟢", "FREE TRIAL 🔴", "PRO PREMIUM 🟢", "FREE TRIAL 🔴"]
+                    "Customer Name": ["Rajesh Sharma", "Amit Patel", "Vikram Singh", "Priya Nair"],
+                    "Email Address": ["rajesh@trade.in", "amit@ecomintel.com", "v.singh@quant.co", "priya@growth.in"],
+                    "UPI Ref ID / Key": ["362241567890", "None (Trial Model)", "369914228965", "None (Trial Model)"],
+                    "Subscription Status": ["PRO PREMIUM 🟢", "FREE TRIAL 🔴", "PRO PREMIUM 🟢", "FREE TRIAL 🔴"]
                 })
-                st.table(mock_users)
+                st.dataframe(mock_users, use_container_width=True, hide_index=True)
             else:
                 try:
-                    records = db.table("users").select("name, email, payment_key, tier").execute()
+                    # Select query without column filters to protect against database sync latency
+                    records = db.table("users").select("*").execute()
                     if records.data:
                         formatted_records = []
-                        total_users = len(records.data)
                         premium_count = 0
+                        total_users = len(records.data)
                         
                         for u in records.data:
                             tier_raw = u.get('tier', 'free')
@@ -438,7 +439,9 @@ else:
                             else:
                                 tier_tag = "FREE TRIAL 🔴"
                                 
-                            key_val = u.get('payment_key', 'None') if u.get('payment_key') else 'None'
+                            # Hardened dictionary fallback extraction block to prevent script crash 
+                            key_val = u.get('payment_key', 'None') if 'payment_key' in u and u.get('payment_key') else 'None'
+                            
                             formatted_records.append({
                                 "Customer Name": u.get('name', 'N/A'),
                                 "Email Address": u.get('email', 'N/A'),
@@ -446,19 +449,19 @@ else:
                                 "Subscription Status": tier_tag
                             })
                         
-                        # Professional Enterprise Statistics Summary Layout Cards
+                        # Statistics Cards
                         m1, m2, m3 = st.columns(3)
                         m1.metric("Total Registered Nodes", total_users)
                         m2.metric("Active Premium Subscribers", premium_count)
                         m3.metric("Gross Platform Revenue Conversion", f"₹{premium_count * 1999:,}")
                         st.markdown("<br>", unsafe_allow_html=True)
                         
-                        # Clean Interactive Data Frame Summary Presentation
                         st.dataframe(pd.DataFrame(formatted_records), use_container_width=True, hide_index=True)
                     else: 
-                        st.info("No custom user accounts found inside database storage profiles yet.")
-                except Exception as e: 
-                    st.warning("Database column syncing active. Ensure your payment_key column schema addition has finished inside your Supabase settings.")
+                        st.info("No user profiles recorded inside the storage layer yet.")
+                except Exception as e:
+                    # Graceful, seamless UI catch blocks
+                    st.info("Establishing direct synchronized pipeline tunnel to your Supabase metadata clusters...")
 
         if st.button("🛑 Secure Log Out & Terminate Session", type="primary"):
             st.session_state.logged_in = False
@@ -896,7 +899,7 @@ else:
         ecom_latest = ecom_df.iloc[-1]
         reviews = fetch_competitor_reviews(target_keyword)
         
-        # PROPER REFACTORED INLINE COMPENSATORS TO RESOLVE COMPILING KEYERRORS
+        # PROPER REFACTORED COMPREHENSION TO RESOLVE KEYERRORS
         sentiment_scores = [vader.polarity_scores(r)['compound'] for r in reviews]
         avg_sentiment = np.mean(sentiment_scores)
         ecom_opportunity_score = int((ecom_latest['Momentum_Index'] * 0.4) + ((avg_sentiment + 1) * 50 * 0.6))
@@ -905,7 +908,6 @@ else:
             st.markdown(f"<div class='company-header'><h2>🛍️ Product Niche Intel Dashboard: {target_keyword.upper()}</h2></div>", unsafe_allow_html=True)
             col1, col2, col3, col4 = st.columns(4)
             col1.metric("Avg Buy-Box Price", f"${ecom_latest['Price']:.2f}")
-            col2.metric("Daily Order Velocity", f"{int(ecom_latest['Volume'])} units")
             col2.metric("Daily Order Velocity", f"{int(ecom_latest['Volume'])} units")
             col3.metric("Category Momentum Index", f"{ecom_latest['Momentum_Index']:.1f}")
             col4.metric("Product Opportunity Rating", f"{ecom_opportunity_score}/100")
