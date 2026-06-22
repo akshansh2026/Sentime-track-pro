@@ -77,7 +77,7 @@ def fetch_competitor_reviews(keyword):
     return [
         f"Incredible performance from this {keyword}, absolute value for money.",
         f"The shipping on this package was delayed. Build quality feels very cheap.",
-        f"Functional, but documentation is poor. Average customer experience.",
+        f"Functional, but size matrix is completely wrong. Order 2 sizes up.",
         f"Highly optimized design. Outperforms top industry competitors easily.",
         f"Arrived defective. Immediate return initiated. Total failure."
     ]
@@ -316,8 +316,8 @@ else:
     # =====================================================================
     st.sidebar.title("🧬 Sentime-Track Pro")
 
-    # [ADD-ON INTERFACE LAYER] Workspace Selection Paradigm
-    project_mode = st.sidebar.radio("Select Functional Workspace Mode:", ["FinTech Quantitative Engine", "E-Commerce Digital SaaS Analyzer"])
+    # Workspace Toggle Navigation Selector Switch
+    project_mode = st.sidebar.radio("Select Workspace Mode:", ["FinTech Quantitative Engine", "E-Commerce Digital SaaS Analyzer"])
 
     vader = SentimentIntensityAnalyzer()
 
@@ -372,7 +372,6 @@ else:
 
         st.sidebar.caption("© 2026 Sentime-Track OS")
 
-        # Ingestion Routing for Original Framework
         asset_data = get_asset_info(ticker)
         stock_df = asset_data["history"]
         full_name = asset_data["name"]
@@ -455,7 +454,7 @@ else:
                     try:
                         syn = ai_model.generate_content(f"In 2 brief sentences, what is the dominant market sentiment for {full_name} based on these headlines: {' '.join(titles[:5])}").text
                         st.markdown(f"<span style='font-size:13px; color:{text_color};'>{syn}</span>", unsafe_allow_html=True)
-                    except Exception: st.warning("⚠️ AI API Rate Limit Reached.")
+                    except Exception: st.warning("⚠️ AI Engine Busy.")
                     st.markdown("</div>", unsafe_allow_html=True)
 
                 components.html(f"""<div style="height:500px;width:100%; border: 1px solid {border_col}; border-radius: 8px; overflow:hidden;"><script src="https://s3.tradingview.com/tv.js"></script><script>new TradingView.widget({{"autosize":true,"symbol":"{tv_symbol}","interval":"D","timezone":"{tv_timezone}","theme":"{tv_theme}","style":"1","locale":"en","container_id":"tv"}});</script><div id="tv" style="height:500px;"></div></div>""", height=500)
@@ -767,16 +766,23 @@ else:
                     except Exception: st.warning("⚠️ AI Engine Busy.")
 
     # =====================================================================
-    # [ADD-ON BUILD] WORKSPACE ARCHITECTURE 2: NEW E-COMMERCE ADAPTIVE ANALYZER
+    # [ADD-ON BUILD] WORKSPACE ARCHITECTURE 2: NEW E-COMMERCE DIGITAL ANALYZER
     # =====================================================================
     else:
         target_keyword = st.sidebar.text_input("Target Digital Product / Niche Keyword:", "Smart Watches")
         ecom_nav = st.sidebar.radio("SaaS Matrix Dashboard Modules", [
-            "Niche Metrics Portfolio", "Historical Pricing Strategy", "SaaS Margin Optimizer", 
-            "Customer Review Miner (NLP)", "Stochastic Demand Forecasting", "Supply Chain Disruption Model", "Launch Volatility Matrix"
+            "Niche Metrics Portfolio", 
+            "Historical Pricing Strategy", 
+            "SaaS Margin Optimizer", 
+            "Customer Review Miner (NLP)", 
+            "Stochastic Demand Forecasting", 
+            "Supply Chain Disruption Model", 
+            "Launch Volatility Matrix",
+            "🚨 AI Review Competitor Defect Miner",        # NEW BREAKTHROUGH EXTENSION
+            "📊 Dynamic Elasticity Optimization Curve"     # NEW BREAKTHROUGH EXTENSION
         ])
         
-        # Pull processed arrays from e-commerce localized logic clusters
+        # Process data through the added Ecom Analytical Pipeline
         ecom_df = fetch_ecom_market_data(target_keyword)
         ecom_latest = ecom_df.iloc[-1]
         reviews = fetch_competitor_reviews(target_keyword)
@@ -819,7 +825,7 @@ else:
             st.markdown("Parses and scores raw competitor product review strings via local VADER lexical arrays.")
             for idx, review_text in enumerate(reviews):
                 score = vader.polarity_scores(review_text)['compound']
-                status = "🟢 POSITIVE OUTCOME" if score > 0 else "🔴 NEGATIVE ANOMALY"
+                status = "🟢 POSITIVE OUTCOME" if score > 0 else "🔴  NEGATIVE ANOMALY"
                 st.info(f"**Scraped Feedback Data {idx+1}:** *\"{review_text}\"* | **Computed Score:** `{score}` ({status})")
 
         elif ecom_nav == "Stochastic Demand Forecasting":
@@ -849,6 +855,45 @@ else:
             st.subheader("Competitor Pay-Per-Click Ad Squeeze Density")
             st.progress(density_pct)
             st.write(f"Current Niche Ad Grid is `{density_pct}%` saturated with enterprise keyword capital allocators.")
+
+        # -------------------------------------------------------------
+        # [ADD-ON EXTENSION] FEATURE 1: AI REVIEW DEFECT MINER
+        # -------------------------------------------------------------
+        elif ecom_nav == "🚨 AI Review Competitor Defect Miner":
+            st.header("🚨 Competitor Vulnerability & Product Defect Miner")
+            st.markdown("Isolates negative structural customer data streams to target manufacturing and supply chain defects in competitor listings.")
+            
+            for text in reviews:
+                if any(word in text.lower() for word in ["broke", "delayed", "wrong", "defective", "failure"]):
+                    st.markdown(f"""
+                    <div style="background:#2a0f12; padding:15px; border-radius:6px; border-left:4px solid #ff4b4b; margin-bottom:10px; border-top:1px solid #2a2d35; border-right:1px solid #2a2d35; border-bottom:1px solid #2a2d35;">
+                        <strong style="color:#ff4b4b; font-size:12px;">CRITICAL COMPETITOR GAP DETECTED:</strong><br>
+                        <span style="color:#e0e0e0; font-size:14px;">"{text}"</span>
+                    </div>
+                    """, unsafe_allow_html=True)
+
+        # -------------------------------------------------------------
+        # [ADD-ON EXTENSION] FEATURE 2: DYNAMIC ELASTICITY OPTIMIZATION CURVE
+        # -------------------------------------------------------------
+        elif ecom_nav == "📊 Dynamic Elasticity Optimization Curve":
+            st.header("📊 Price Elasticity & Revenue Maximize Curve")
+            st.markdown("Uses macro price elasticity ratios ($E = \\frac{\\% \\Delta Q}{\\% \\Delta P}$) to compute the absolute mathematical sweet-spot for maximum gross revenue yields.")
+            
+            # Compute Elasticity Curve Calculations
+            test_prices = np.linspace(float(ecom_latest['Price']) * 0.7, float(ecom_latest['Price']) * 1.4, 25)
+            simulated_volumes = int(ecom_latest['Volume']) * (1.5 - (test_prices / float(ecom_latest['Price'])))
+            simulated_revenues = test_prices * simulated_volumes
+            max_rev_idx = np.argmax(simulated_revenues)
+            optimized_price = float(test_prices[max_rev_idx])
+
+            st.metric("Algorithmic Revenue Maximizing Price Point", f"${optimized_price:.2f}", 
+                      delta=f"${optimized_price - ecom_latest['Price']:.2f} Optimization Shift")
+            
+            fig_e = go.Figure()
+            fig_e.add_trace(go.Scatter(x=test_prices, y=simulated_revenues, mode='lines+markers', name='Revenue Optimization Path', line=dict(color='#00ffcc', width=3)))
+            fig_e.add_trace(go.Scatter(x=[optimized_price], y=[max(simulated_revenues)], mode='markers', name='Optimal Revenue Peak', marker=dict(color='#ff4b4b', size=14, symbol='star')))
+            fig_e.update_layout(xaxis_title="Simulated Price Target ($)", yaxis_title="Projected Gross Pool Revenue ($)", template="plotly_dark")
+            st.plotly_chart(fig_e, use_container_width=True)
 
         # --- EXPORTER FOOTER FOR WORKSPACE 2 ---
         st.sidebar.markdown("---")
