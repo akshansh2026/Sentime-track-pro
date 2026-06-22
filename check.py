@@ -15,6 +15,7 @@ from dotenv import load_dotenv
 import streamlit.components.v1 as components
 import plotly.graph_objects as go
 import random
+import requests # For Instamojo API requests
 from supabase import create_client 
 
 # --- SECURE API KEY LOADING ---
@@ -25,6 +26,13 @@ GEMINI_API_KEY = st.secrets.get("GEMINI_API_KEY", os.getenv("GEMINI_API_KEY", "Y
 TWILIO_ACCOUNT_SID = st.secrets.get("TWILIO_ACCOUNT_SID", os.getenv("TWILIO_ACCOUNT_SID"))
 TWILIO_AUTH_TOKEN = st.secrets.get("TWILIO_AUTH_TOKEN", os.getenv("TWILIO_AUTH_TOKEN"))
 TWILIO_PHONE_NUMBER = "+18166805637"
+
+# --- INSTAMOJO ENTERPRISE CREDENTIALS (LOADED FROM SECRETS) ---
+# For Testing Sandbox use: https://test.instamojo.com/api/1.1/
+# For Live Production use: https://api.instamojo.com/api/1.1/
+INSTAMOJO_BASE_URL = "https://test.instamojo.com/api/1.1/" 
+INSTAMOJO_API_KEY = st.secrets.get("INSTAMOJO_API_KEY", "YOUR_API_KEY")
+INSTAMOJO_AUTH_TOKEN = st.secrets.get("INSTAMOJO_AUTH_TOKEN", "YOUR_AUTH_TOKEN")
 
 # --- INJECTED DATABASE CONNECTION ---
 @st.cache_resource
@@ -362,35 +370,80 @@ else:
     
     user_tier = st.session_state.current_user.get("tier", "free")
     
-    # Dynamic 1999 UPI Monetization Gateway
+    # Fully Automated Instamojo Checkout Generation Node
     def render_paywall():
         st.markdown(f"""
-            <div style="background: linear-gradient(135deg, #2a0f14 0%, {card_bg} 100%); padding: 30px; border-radius: 12px; border: 2px solid #ff4b4b; margin: 20px 0; text-align: center;">
-                <h3 style="color:#ff4b4b; margin:0; font-size:22px; letter-spacing:1px;">🔒 MODULAR PREMIUM PAYWALL</h3>
-                <p style="color:{sub_text}; font-size:14px; margin-top:8px;">The module you selected is an elite capability restricted entirely to Pro Premium subscribers.</p>
-                <hr style="border-color:#ff4b4b; opacity:0.2; margin:20px 0;">
-                <p style="color:{text_color}; font-size:15px; font-weight:600;">Scan QR Code via UPI to instantly unlock platform-wide access:</p>
-                <div style="text-align:center; margin:20px 0;">
-                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=akshansh103-3@okhdfcbank&pn=SentimeTrackPro&am=1999.00&cu=INR" style="border: 4px solid white; border-radius:8px; width:150px;"/>
-                    <p style="color:#00CC96; font-size:13px; font-family:monospace; font-weight:bold; margin-top:8px;">💵 Premium Fee: ₹1,999 / Month</p>
-                </div>
-                <p style="color:{sub_text}; font-size:12px; margin-top:10px;">⚠️ Note: Your unique premium key is the 12-Digit Transaction Reference ID generated inside your banking app after payment execution.</p>
+            <div style="background: linear-gradient(135deg, #131722 0%, {card_bg} 100%); padding: 30px; border-radius: 12px; border: 1px solid #3a7bd5; margin: 20px 0; text-align: center;">
+                <h3 style="color:#00d2ff; margin:0; font-size:22px; letter-spacing:1px;">🔒 UPGRADE TO TERMINAL PREMIUM</h3>
+                <p style="color:{sub_text}; font-size:14px; margin-top:8px;">The resource module you selected requires instant business account authorization clearance.</p>
+                <hr style="border-color:#3a7bd5; opacity:0.2; margin:20px 0;">
+                <p style="color:{text_color}; font-size:15px; font-weight:600; margin-bottom:15px;">Unlock all advanced modules via Instamojo Instant API Channels:</p>
+                <p style="color:#00CC96; font-size:18px; font-family:monospace; font-weight:bold; margin-bottom:20px;">💵 Subscription Fee: ₹1,999 / Month</p>
             </div>
         """, unsafe_allow_html=True)
+
+        headers = {
+            "X-Api-Key": INSTAMOJO_API_KEY,
+            "X-Auth-Token": INSTAMOJO_AUTH_TOKEN
+        }
+        payload = {
+            "purpose": "Sentime-Track Pro Premium Access",
+            "amount": "1999.00",
+            "buyer_name": st.session_state.current_user.get("name", "Subscriber"),
+            "email": st.session_state.current_user.get("email", "info@sentimetrack.pro"),
+            "phone": st.session_state.current_user.get("phone", ""),
+            "send_email": False,
+            "send_sms": False,
+            "allow_repeated_payments": False
+        }
+
+        try:
+            if "instamojo_url" not in st.session_state:
+                with st.spinner("Connecting to secure gateway links..."):
+                    req = requests.post(f"{INSTAMOJO_BASE_URL}payment-requests/", data=payload, headers=headers)
+                    if req.status_code == 201:
+                        st.session_state.instamojo_url = req.json()["payment_request"]["longurl"]
+                        st.session_state.payment_req_id = req.json()["payment_request"]["id"]
+                    else:
+                        st.error("Payment Gateway Error: Unable to instantiate direct order pool links.")
+            
+            if "instamojo_url" in st.session_state:
+                st.markdown(f"""
+                    <div style="text-align:center; margin-bottom:25px;">
+                        <a href="{st.session_state.instamojo_url}" target="_blank" style="text-decoration:none;">
+                            <button style="background:linear-gradient(90deg, #00c6ff 0%, #0072ff 100%); color:white; font-weight:700; border:none; padding:15px 35px; border-radius:8px; cursor:pointer; font-size:16px; width:100%; box-shadow:0 4px 15px rgba(0,114,255,0.35);">
+                                💳 PROCEED TO INSTAMOJO SECURE CHECKOUT
+                            </button>
+                        </a>
+                    </div>
+                """, unsafe_allow_html=True)
+        except Exception as e:
+            st.error(f"Network Connection Interrupted: {e}")
         
-        act_key = st.text_input("Paste your 12-Digit UPI Transaction Reference Number here to unlock:", placeholder="e.g., 362241567890")
-        if st.button("VERIFY TRANSACTION KEY & ACTIVATE PRO SYSTEM", type="primary", use_container_width=True):
-            if len(act_key.strip()) == 12 and act_key.strip().isdigit():
-                st.session_state.current_user["tier"] = "pro"
-                st.session_state.current_user["payment_key"] = act_key.strip()
-                if db is not None:
-                    try: db.table("users").update({"tier": "pro", "payment_key": act_key.strip()}).eq("email", st.session_state.current_user["email"]).execute()
-                    except Exception: pass
-                st.success("✨ Payment reference validated successfully! Premium access enabled.")
-                time.sleep(1)
-                st.rerun()
-            else:
-                st.error("Invalid payment reference. Enter the correct 12-digit transaction number generated from your banking application.")
+        st.markdown("<p style='text-align:center; font-size:13px; font-weight:600;'>🔄 Once payment is complete, enter your unique Payment Request ID below:</p>", unsafe_allow_html=True)
+        check_key = st.text_input("Payment Request ID Key:", placeholder="e.g., d66cb29dd059482e8072999f995c4eef")
+        
+        if st.button("VERIFY INSTAMOJO INBOUND PAYMENT GATE", type="primary", use_container_width=True):
+            try:
+                verify_req = requests.get(f"{INSTAMOJO_BASE_URL}payment-requests/{check_key.strip()}/", headers=headers)
+                if verify_req.status_code == 200:
+                    payment_status = verify_req.json()["payment_request"]["status"]
+                    if payment_status == "Completed" or payment_status == "Credit":
+                        st.session_state.current_user["tier"] = "pro"
+                        st.session_state.current_user["payment_key"] = check_key.strip()
+                        if db is not None:
+                            try: db.table("users").update({"tier": "pro", "payment_key": check_key.strip()}).eq("email", st.session_state.current_user["email"]).execute()
+                            except Exception: pass
+                        st.success("✨ Subscription Active! Premium access layer enabled.")
+                        time.sleep(1)
+                        if "instamojo_url" in st.session_state: del st.session_state.instamojo_url
+                        st.rerun()
+                    else:
+                        st.warning(f"Transaction pending: Current status is '{payment_status}'. Complete checkout first.")
+                else:
+                    st.error("Verification failed: Payment reference ID key string not discovered inside merchant database records.")
+            except Exception as e:
+                st.error(f"Verification tracking engine fault: {e}")
 
     # Shared professional profile block with hardened error protection loops
     def render_profile_subsystem():
@@ -416,13 +469,12 @@ else:
                 mock_users = pd.DataFrame({
                     "Customer Name": ["Rajesh Sharma", "Amit Patel", "Vikram Singh", "Priya Nair"],
                     "Email Address": ["rajesh@trade.in", "amit@ecomintel.com", "v.singh@quant.co", "priya@growth.in"],
-                    "UPI Ref ID / Key": ["362241567890", "None (Trial Model)", "369914228965", "None (Trial Model)"],
+                    "Instamojo Payment ID / Key": ["MOJO6230005J21512", "None (Trial Model)", "MOJO8910023K14992", "None (Trial Model)"],
                     "Subscription Status": ["PRO PREMIUM 🟢", "FREE TRIAL 🔴", "PRO PREMIUM 🟢", "FREE TRIAL 🔴"]
                 })
                 st.dataframe(mock_users, use_container_width=True, hide_index=True)
             else:
                 try:
-                    # Select query without column filters to protect against database sync latency
                     records = db.table("users").select("*").execute()
                     if records.data:
                         formatted_records = []
@@ -439,13 +491,11 @@ else:
                             else:
                                 tier_tag = "FREE TRIAL 🔴"
                                 
-                            # Hardened dictionary fallback extraction block to prevent script crash 
                             key_val = u.get('payment_key', 'None') if 'payment_key' in u and u.get('payment_key') else 'None'
-                            
                             formatted_records.append({
                                 "Customer Name": u.get('name', 'N/A'),
                                 "Email Address": u.get('email', 'N/A'),
-                                "UPI Ref ID / Key": key_val,
+                                "Instamojo Payment ID / Key": key_val,
                                 "Subscription Status": tier_tag
                             })
                         
@@ -460,12 +510,12 @@ else:
                     else: 
                         st.info("No user profiles recorded inside the storage layer yet.")
                 except Exception as e:
-                    # Graceful, seamless UI catch blocks
                     st.info("Establishing direct synchronized pipeline tunnel to your Supabase metadata clusters...")
 
         if st.button("🛑 Secure Log Out & Terminate Session", type="primary"):
             st.session_state.logged_in = False
             st.session_state.current_user = None
+            if "instamojo_url" in st.session_state: del st.session_state.instamojo_url
             st.rerun()
 
     # =====================================================================
