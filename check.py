@@ -109,7 +109,7 @@ st.markdown(f"""
     .stat-card {{
         background: {card_bg}; border-left: 4px solid #3a7bd5;
         padding: 12px; border-radius: 8px; margin-bottom: 8px; color: {text_color};
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05); border: 1px solid {border_col}; border-left: 4px solid #3a7bd5;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05); border: 1px solid {border_col}; border-left: 4px solid {border_col};
     }}
     .ai-insight {{
         background: {grad_1}; padding: 12px; border-radius: 8px; border: 1px dashed #3a7bd5; margin-bottom: 15px; color: {text_color};
@@ -359,7 +359,7 @@ else:
                     <p style="color:#00CC96; font-size:11px; font-family:monospace; margin-top:5px;">💵 Premium Fee: ₹499 / Month</p>
                 </div>
             </div>
-        """, unsafe_allowed_html=True)
+        """, unsafe_allow_html=True)
         
         activation_key = st.text_input("Enter Premium Verification Key after payment:", placeholder="PRO-XXXX-XXXX")
         if st.button("VALIDATE KEY & UNLOCK TERMINAL", type="primary", use_container_width=True):
@@ -912,7 +912,7 @@ else:
                 st.success("Logistics corridors operating efficiently within expected standard deviations.")
 
         elif ecom_nav == "Launch Volatility Matrix":
-            st.header("💧 Keyword Density & Market Liquidity Indicators")
+            st.header("📊 Keyword Density & Market Liquidity Indicators")
             density_pct = random.randint(20, 99)
             st.subheader("Competitor Pay-Per-Click Ad Squeeze Density")
             st.progress(density_pct)
@@ -930,12 +930,12 @@ else:
                         <strong style="color:#ff4b4b; font-size:12px;">CRITICAL COMPETITOR GAP DETECTED:</strong><br>
                         <span style="color:#e0e0e0; font-size:14px;">"{text}"</span>
                     </div>
-                    """, unsafe_allowed_html=True)
+                    """, unsafe_allow_html=True)
 
         # --- FEATURE 2: DYNAMIC ELASTICITY OPTIMIZATION CURVE ---
         elif ecom_nav == "📊 Dynamic Elasticity Optimization Curve":
             st.header("📊 Price Elasticity & Revenue Maximize Curve")
-            st.markdown("Uses macro price elasticity ratios ($E = \\frac{\\% \\Delta Q}{\\% \\Delta P}$) to compute the absolute mathematical sweet-spot for maximum gross revenue yields.")
+            st.markdown("Uses macro price elasticity ratios to compute the absolute mathematical sweet-spot for maximum gross revenue yields.")
             
             test_prices = np.linspace(float(ecom_latest['Price']) * 0.7, float(ecom_latest['Price']) * 1.4, 25)
             simulated_volumes = int(ecom_latest['Volume']) * (1.5 - (test_prices / float(ecom_latest['Price'])))
