@@ -109,7 +109,7 @@ st.markdown(f"""
     .stat-card {{
         background: {card_bg}; border-left: 4px solid #3a7bd5;
         padding: 12px; border-radius: 8px; margin-bottom: 8px; color: {text_color};
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05); border: 1px solid {border_col}; border-left: 4px solid {border_col};
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05); border: 1px solid {border_col}; border-left: 4px solid #3a7bd5;
     }}
     .ai-insight {{
         background: {grad_1}; padding: 12px; border-radius: 8px; border: 1px dashed #3a7bd5; margin-bottom: 15px; color: {text_color};
@@ -168,6 +168,22 @@ if not st.session_state.logged_in:
 
         st.markdown("<div class='auth-box'>", unsafe_allow_html=True)
         
+        # --- EXCLUSIVE SYSTEM ROOT BYPASS CONFIG FOR AKSHANSH (ADMIN NODE) ---
+        st.markdown("<p style='color:#00CC96; font-size:11px; text-align:center; font-weight:bold; letter-spacing:1.5px; margin-bottom:5px;'>🎖️ EXCLUSIVE ADMIN SECURE GATEWAY</p>", unsafe_allow_html=True)
+        if st.button("⚡ EXECUTE ROOT BYPASS (MASTER ADMIN PLATFORM ACCESS)", use_container_width=True, type="primary"):
+            st.session_state.logged_in = True
+            st.session_state.current_user = {
+                "name": "Akshansh (Platform Owner)", 
+                "email": "akshansh@sentimetrack.pro", 
+                "phone": "+919999999999", 
+                "tier": "admin"
+            }
+            st.success("Bypass Executed. Welcome back, Admin Akshansh!")
+            time.sleep(0.5)
+            st.rerun()
+            
+        st.markdown("<hr style='border-color:#3a7bd5; opacity:0.2; margin:15px 0;'>", unsafe_allow_html=True)
+
         auth_col1, auth_col2 = st.columns(2)
         with auth_col1:
             if st.button("LOGIN", use_container_width=True, type="secondary" if st.session_state.auth_mode == "Signup" else "primary"): 
@@ -186,7 +202,6 @@ if not st.session_state.logged_in:
             st.markdown("<br>", unsafe_allow_html=True)
             if st.button("AUTHENTICATE SESSION", use_container_width=True, type="primary"):
                 if db is None:
-                    # Adaptive sandbox authentication fallback sequence
                     st.session_state.logged_in = True
                     st.session_state.current_user = {"name": "Sandbox Trial Node", "email": log_email, "phone": "+919999999999", "tier": "free"}
                     st.rerun()
@@ -197,7 +212,7 @@ if not st.session_state.logged_in:
                             st.session_state.logged_in = True
                             user_data = user_query.data[0]
                             if "tier" not in user_data:
-                                user_data["tier"] = "free" # Standard dynamic fallback assignment
+                                user_data["tier"] = "free"
                             st.session_state.current_user = {"email": log_email, **user_data}
                             st.rerun()
                         else:
@@ -340,52 +355,43 @@ else:
             return False, str(e)
 
     # =====================================================================
-    # SIDEBAR CONTROL & SUBSCRIPTION GATE OVERLAY
+    # SIDEBAR CONTROL & CONFIGURATIONS
     # =====================================================================
     st.sidebar.title("🧬 Sentime-Track Pro")
+    project_mode = st.sidebar.radio("Select Workspace Mode:", ["FinTech Quantitative Engine", "E-Commerce Digital SaaS Analyzer"])
     
     user_tier = st.session_state.current_user.get("tier", "free")
     
-    # Secure inline monetization portal wrapper logic
-    if user_tier == "free":
+    # Custom 1999 UPI Monetization Gateway
+    def render_paywall():
         st.markdown(f"""
-            <div style="background: linear-gradient(135deg, #2a0f14 0%, {card_bg} 100%); padding: 20px; border-radius: 12px; border: 1px solid #ff4b4b; margin-bottom: 25px;">
-                <h4 style="color:#ff4b4b; margin:0; font-size:15px; letter-spacing:1px;">🔒 ACCOUNT LOCKED OUT</h4>
-                <p style="color:{sub_text}; font-size:12px; margin-top:5px;">Your profile status is currently running on the restricted Free Evaluation Matrix tier.</p>
-                <hr style="border-color:#ff4b4b; opacity:0.3; margin:10px 0;">
-                <p style="color:{text_color}; font-size:13px; font-weight:600;">Scan QR Code via UPI to instantly upgrade to Pro Premium Terminal:</p>
-                <div style="text-align:center; margin:15px 0;">
-                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=merchant@upi&pn=SentimeTrackPro&am=499.00&cu=INR" style="border: 4px solid white; border-radius:8px; width:140px;"/>
-                    <p style="color:#00CC96; font-size:11px; font-family:monospace; margin-top:5px;">💵 Premium Fee: ₹499 / Month</p>
+            <div style="background: linear-gradient(135deg, #2a0f14 0%, {card_bg} 100%); padding: 30px; border-radius: 12px; border: 2px solid #ff4b4b; margin: 20px 0; text-align: center;">
+                <h3 style="color:#ff4b4b; margin:0; font-size:22px; letter-spacing:1px;">🔒 MODULAR PREMIUM PAYWALL</h3>
+                <p style="color:{sub_text}; font-size:14px; margin-top:8px;">The module you selected is an elite capability restricted entirely to Pro Premium subscribers.</p>
+                <hr style="border-color:#ff4b4b; opacity:0.2; margin:20px 0;">
+                <p style="color:{text_color}; font-size:15px; font-weight:600;">Scan QR Code via UPI to instantly unlock instant platform-wide access:</p>
+                <div style="text-align:center; margin:20px 0;">
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=akshansh103-3@okhdfcbank&pn=SentimeTrackPro&am=1999.00&cu=INR" style="border: 4px solid white; border-radius:8px; width:150px;"/>
+                    <p style="color:#00CC96; font-size:13px; font-family:monospace; font-weight:bold; margin-top:8px;">💵 Premium Fee: ₹1,999 / Month</p>
                 </div>
             </div>
         """, unsafe_allow_html=True)
         
-        activation_key = st.text_input("Enter Premium Verification Key after payment:", placeholder="PRO-XXXX-XXXX")
-        if st.button("VALIDATE KEY & UNLOCK TERMINAL", type="primary", use_container_width=True):
-            if activation_key.startswith("PRO-"):
+        act_key = st.text_input("Enter Premium Activation Key after processing transfer:", placeholder="PRO-XXXX-XXXX")
+        if st.button("VALIDATE KEY & ACTIVATE PRO SYSTEM MODULES", type="primary", use_container_width=True):
+            if act_key.startswith("PRO-"):
                 st.session_state.current_user["tier"] = "pro"
                 if db is not None:
-                    try:
-                        db.table("users").update({"tier": "pro"}).eq("email", st.session_state.current_user["email"]).execute()
+                    try: db.table("users").update({"tier": "pro"}).eq("email", st.session_state.current_user["email"]).execute()
                     except Exception: pass
-                st.success("✨ Premium Tier Unlocked! Reloading dashboard engines...")
+                st.success("✨ Premium Tier Globally Enabled! Re-calibrating terminal structures...")
                 time.sleep(1)
                 st.rerun()
             else:
-                st.error("Invalid transaction authentication code string sequence.")
-        
-        if st.button("🛑 Secure Log Out", use_container_width=True):
-            st.session_state.logged_in = False
-            st.session_state.current_user = None
-            st.rerun()
-        st.stop()
-
-    # The functional dashboard elements only build if user session condition evaluates to "pro"
-    project_mode = st.sidebar.radio("Select Workspace Mode:", ["FinTech Quantitative Engine", "E-Commerce Digital SaaS Analyzer"])
+                st.error("Invalid transaction authentication code string configuration.")
 
     # =====================================================================
-    # WORKSPACE ARCHITECTURE 1: ORIGINAL FINTECH PIPELINES
+    # WORKSPACE ARCHITECTURE 1: FINTECH QUANTITATIVE ENGINE
     # =====================================================================
     if project_mode == "FinTech Quantitative Engine":
         with st.sidebar.expander("📌 My Portfolio Watchlist", expanded=False):
@@ -457,7 +463,7 @@ else:
                 """, unsafe_allow_html=True)
                 last_price = float(stock_df['Close'].iloc[-1]) if not stock_df.empty else 0.0
 
-            # --- MODULE: MY PROFILE ---
+            # --- FREE TIER ALLOWED: MY PROFILE (WITH B2B METRICS HARNESS) ---
             if nav == "👤 My Profile":
                 user_initial = st.session_state.current_user.get('name', '?')[0].upper()
                 st.markdown(f"""
@@ -468,28 +474,46 @@ else:
                         </div>
                         <div>
                             <h1 style="color:{text_color}; margin:0; letter-spacing: 1px;">{st.session_state.current_user.get('name', 'User')}</h1>
-                            <p style="color:#00CC96; font-size: 14px; margin-top:5px; font-weight: 600;">🟢 PRO SUBSCRIPTION ACTIVE</p>
+                            <p style="color:#00CC96; font-size: 14px; margin-top:5px; font-weight: 600;">STATUS Account Security Clearance: {user_tier.upper()}</p>
                         </div>
                     </div>
                 </div>
                 """, unsafe_allow_html=True)
                 
-                st.markdown(f"""
-                <div style="background:{card_bg}; padding: 25px; border-radius: 10px; border: 1px solid {border_col}; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 20px;">
-                    <h5 style="color:{sub_text}; margin-bottom: 20px; font-size: 13px; text-transform: uppercase; letter-spacing: 1px;">Registered Credentials</h5>
-                    <strong style="font-size: 12px; color:{sub_text};">Email Address</strong><br>
-                    <span style="font-size: 16px; color:{text_color}; font-weight: 500;">{st.session_state.current_user.get('email', '')}</span><br><br>
-                    <strong style="font-size: 12px; color:{sub_text};">Phone / SMS Destination</strong><br>
-                    <span style="font-size: 16px; color:{text_color}; font-weight: 500;">{st.session_state.current_user.get('phone', '')}</span>
-                </div>
-                """, unsafe_allow_html=True)
-                
+                # --- EXCLUSIVE B2B SALES ANALYTICS HUB FOR ADMIN NODE ---
+                if user_tier == "admin":
+                    st.markdown("### 📊 Platform Monetization & Subscriber Analytics Hub")
+                    if db is None:
+                        st.info("Operating in standalone sandbox environment. Populate Supabase tables to audit cross-network users.")
+                        # Simulated Fallback UI metrics arrays
+                        mock_users = pd.DataFrame({
+                            "Full Name": ["Rajesh Sharma", "Amit Patel", "Vikram Singh", "Priya Nair"],
+                            "Email Vector": ["rajesh@trade.in", "amit@ecomintel.com", "v.singh@quant.co", "priya@growth.in"],
+                            "Assigned Plan Tier": ["PRO PREMIUM 🟢", "FREE TRIAL 🔴", "PRO PREMIUM 🟢", "FREE TRIAL 🔴"]
+                        })
+                        st.table(mock_users)
+                    else:
+                        try:
+                            records = db.table("users").select("name, email, tier").execute()
+                            if records.data:
+                                formatted_records = []
+                                for u in records.data:
+                                    tier_tag = "PRO PREMIUM 🟢" if u.get('tier') == 'pro' else "SUPER ROOT ADMIN 👑" if u.get('tier') == 'admin' else "FREE TRIAL 🔴"
+                                    formatted_records.append({
+                                        "Customer Identity": u.get('name', 'N/A'),
+                                        "Email Connection Routing": u.get('email', 'N/A'),
+                                        "Platform Entitlement Tier": tier_tag
+                                    })
+                                st.dataframe(pd.DataFrame(formatted_records), use_container_width=True)
+                            else: st.caption("No registered consumers indexed inside the cluster nodes yet.")
+                        except Exception as e: st.error(f"Failed to query database profiles: {e}")
+
                 if st.button("🛑 Secure Log Out & Terminate Session", type="primary"):
                     st.session_state.logged_in = False
                     st.session_state.current_user = None
                     st.rerun()
 
-            # --- MODULE: INTELLIGENCE HUB ---
+            # --- FREE TIER ALLOWED: INTELLIGENCE HUB ---
             elif nav == "Intelligence Hub":
                 col1, col2, col3, col4 = st.columns([1, 1, 1, 1.5])
                 current_rsi = stock_df['RSI'].iloc[-1] if not stock_df.empty else 50.0
@@ -536,7 +560,7 @@ else:
                             </div>
                         """, unsafe_allow_html=True)
 
-            # --- MODULE: CUSTOM PORTFOLIO ---
+            # --- FREE TIER ALLOWED: CUSTOM PORTFOLIO ---
             elif nav == "📌 Custom Portfolio":
                 st.markdown(f"""
                 <div style="background: linear-gradient(135deg, {grad_1} 0%, {grad_2} 100%); padding: 15px; border-radius: 10px; border: 1px solid #3a7bd5; margin-bottom: 20px; text-align: center;">
@@ -569,7 +593,11 @@ else:
                                     """, unsafe_allow_html=True)
                         except: pass
 
-            # --- MODULE: ALGO BACKTESTER ---
+            # === SUBSCRIPTION GATE FOR ADVANCED QUANT EXTRACTIONS ===
+            elif user_tier not in ["pro", "admin"]:
+                render_paywall()
+
+            # --- PREMIUM MODULE: ALGO BACKTESTER ---
             elif nav == "⏪ Algo Backtester":
                 st.markdown(f"""
                 <div style="background: linear-gradient(135deg, {grad_1} 0%, {grad_2} 100%); padding: 20px; border-radius: 12px; border: 1px solid #FFD700; margin-bottom: 25px; text-align: center;">
@@ -608,7 +636,7 @@ else:
                             st.warning("Not enough historical data to compute a 200-day moving average.")
                 except Exception as e: st.error(f"Backtester Error: {e}")
 
-            # --- MODULE: SMS ALERTS DASHBOARD ---
+            # --- PREMIUM MODULE: SMS ALERTS DASHBOARD ---
             elif nav == "🚨 SMS Alerts Dashboard":
                 st.markdown(f"""
                 <div style="background: linear-gradient(135deg, {grad_1} 0%, {grad_2} 100%); padding: 20px; border-radius: 12px; border: 1px solid #FF4B4B; margin-bottom: 25px; text-align: center;">
@@ -659,7 +687,7 @@ else:
                         </div>
                         """, unsafe_allow_html=True)
 
-            # --- MODULE: EXPORT HUB ---
+            # --- PREMIUM MODULE: EXPORT HUB ---
             elif nav == "Export & Tear Sheet":
                 st.markdown(f"""
                 <div style="background: linear-gradient(135deg, {grad_1} 0%, {grad_2} 100%); padding: 35px; border-radius: 12px; border: 1px dashed #3a7bd5; text-align: center; margin-bottom: 20px;">
@@ -700,7 +728,7 @@ else:
                     """
                     st.download_button(label="📄 DOWNLOAD TEAR SHEET", data=tear_sheet.encode('utf-8'), file_name=f"{raw_symbol}_TearSheet.txt", mime='text/plain', use_container_width=True)
 
-            # --- MODULE: STRATEGY SIMULATOR ---
+            # --- PREMIUM MODULE: STRATEGY SIMULATOR ---
             elif nav == "Strategy Simulator":
                 s1, s2 = st.columns([1.5, 1])
                 with s1:
@@ -725,7 +753,7 @@ else:
                     </div>
                     """, unsafe_allow_html=True)
 
-            # --- MODULE: QUANT HEALTH ---
+            # --- PREMIUM MODULE: QUANT HEALTH ---
             elif nav == "Quant Health":
                 st.subheader(f"📊 {full_name} Beta & Volatility")
                 st.latex(r"\beta = \frac{\text{Cov}(r_a, r_m)}{\text{Var}(r_m)}")
@@ -746,7 +774,7 @@ else:
                     fig_p.update_layout(template="plotly_dark" if st.session_state.theme == "Dark" else "plotly_white", paper_bgcolor=bg_color, plot_bgcolor=card_bg, font=dict(color=text_color))
                     st.plotly_chart(fig_p, use_container_width=True)
 
-            # --- MODULE: PREDICTIVE FORECASTER ---
+            # --- PREMIUM MODULE: PREDICTIVE FORECASTER ---
             elif nav == "Predictive Forecaster":
                 st.subheader(f"🔮 AI Monte Carlo Forecaster")
                 try:
@@ -760,7 +788,7 @@ else:
                     st.plotly_chart(fig_mc, use_container_width=True)
                 except Exception as e: st.error(f"Error: {e}")
 
-            # --- MODULE: GLOBAL MACRO ---
+            # --- PREMIUM MODULE: GLOBAL MACRO ---
             elif nav == "Global Macro & Black Swan":
                 try:
                     with st.spinner("Aligning global macroeconomic matrices..."):
@@ -785,7 +813,7 @@ else:
                             st.markdown(f"<div style='background:{card_bg}; padding: 20px; border-radius:10px; border-top: 3px solid #FFD700; border-left:1px solid {border_col}; border-right:1px solid {border_col}; border-bottom:1px solid {border_col}; text-align:center;'><p style='color:{sub_text}; font-size:12px; margin:0;'>BLACK SWAN ENTROPY</p><h2 style='color:#FFD700; margin:10px 0;'>{entropy:.1f}/100</h2></div>", unsafe_allow_html=True)
                 except Exception as e: st.error(f"Error: {e}")
 
-            # --- MODULE: RISK & REGIME ---
+            # --- PREMIUM MODULE: RISK & REGIME ---
             elif nav == "Algorithmic Risk & Regime":
                 try:
                     returns = stock_df['Close'].pct_change().dropna()
@@ -800,7 +828,7 @@ else:
                     st.markdown(f"<div style='background: {card_bg}; border: 1px solid {color}; padding: 35px; border-radius: 12px; text-align: center; margin-top:20px;'><p style='color: {color}; margin: 0; font-weight:bold;'>MARKET REGIME</p><h1 style='color: {text_color};'>{regime}</h1></div>", unsafe_allow_html=True)
                 except Exception as e: st.error(f"Error: {e}")
 
-            # --- MODULE: INTRADAY LIQUIDITY ---
+            # --- PREMIUM MODULE: INTRADAY LIQUIDITY ---
             elif nav == "Intraday Liquidity":
                 try:
                     avg_vol = stock_df['Volume'].tail(30).mean()
@@ -852,6 +880,7 @@ else:
         avg_sentiment = np.mean(sentiment_scores)
         ecom_opportunity_score = int((ecom_latest['Momentum_Index'] * 0.4) + ((avg_sentiment + 1) * 50 * 0.6))
 
+        # --- FREE E-COMMERCE FEATURE: NICHE METRICS DASHBOARD ---
         if ecom_nav == "Niche Metrics Portfolio":
             st.markdown(f"<div class='company-header'><h2>🛍️ Product Niche Intel Dashboard: {target_keyword.upper()}</h2></div>", unsafe_allow_html=True)
             col1, col2, col3, col4 = st.columns(4)
@@ -861,6 +890,10 @@ else:
             col4.metric("Product Opportunity Rating", f"{ecom_opportunity_score}/100")
             st.subheader("Historical Category Floor Value Tracking")
             st.line_chart(ecom_df['Price'])
+
+        # === SUBSCRIPTION GATEWAY ENFORCEMENT ON RECURRING CHANNELS ===
+        elif user_tier not in ["pro", "admin"]:
+            render_paywall()
 
         elif ecom_nav == "Historical Pricing Strategy":
             st.header("⏪ Competitor Price Ceiling & Floor Regression")
@@ -912,7 +945,7 @@ else:
                 st.success("Logistics corridors operating efficiently within expected standard deviations.")
 
         elif ecom_nav == "Launch Volatility Matrix":
-            st.header("📊 Keyword Density & Market Liquidity Indicators")
+            st.header("💧 Keyword Density & Market Liquidity Indicators")
             density_pct = random.randint(20, 99)
             st.subheader("Competitor Pay-Per-Click Ad Squeeze Density")
             st.progress(density_pct)
