@@ -171,22 +171,6 @@ if not st.session_state.logged_in:
 
         st.markdown("<div class='auth-box'>", unsafe_allow_html=True)
         
-        # --- EXCLUSIVE SYSTEM ROOT BYPASS CONFIG FOR AKSHANSH (ADMIN NODE) ---
-        st.markdown("<p style='color:#00CC96; font-size:11px; text-align:center; font-weight:bold; letter-spacing:1.5px; margin-bottom:5px;'>🎖️ EXCLUSIVE ADMIN SECURE GATEWAY</p>", unsafe_allow_html=True)
-        if st.button("⚡ EXECUTE ROOT BYPASS (MASTER ADMIN PLATFORM ACCESS)", use_container_width=True, type="primary"):
-            st.session_state.logged_in = True
-            st.session_state.current_user = {
-                "name": "Akshansh (Platform Owner)", 
-                "email": "akshansh103@gmail.com", 
-                "phone": "+919999999999", 
-                "tier": "admin"
-            }
-            st.success("Bypass Executed. Welcome back, Admin Akshansh!")
-            time.sleep(0.5)
-            st.rerun()
-            
-        st.markdown("<hr style='border-color:#3a7bd5; opacity:0.2; margin:15px 0;'>", unsafe_allow_html=True)
-
         auth_col1, auth_col2 = st.columns(2)
         with auth_col1:
             if st.button("LOGIN", use_container_width=True, type="secondary" if st.session_state.auth_mode == "Signup" else "primary"): 
@@ -204,7 +188,7 @@ if not st.session_state.logged_in:
             log_pass = st.text_input("Password", type="password", placeholder="••••••••")
             st.markdown("<br>", unsafe_allow_html=True)
             if st.button("AUTHENTICATE SESSION", use_container_width=True, type="primary"):
-                # HARDCODED AUTOMATIC ADMIN REDIRECTION MATRIX FOR AKSHANSH
+                # HARDCODED AUTOMATIC ADMIN REDIRECTION MATRIX FOR AKSHANSH (BYPASSES VISIBLE BYBUTTONS)
                 if log_email == "akshansh103@gmail.com" and log_pass == "Akshansh1234@":
                     st.session_state.logged_in = True
                     st.session_state.current_user = {
@@ -213,7 +197,7 @@ if not st.session_state.logged_in:
                         "phone": "+919999999999", 
                         "tier": "admin"
                     }
-                    st.success("Master Admin Node Confirmed. Launching Analytics Core...")
+                    st.success("Master Admin Credentials Confirmed. Booting Monitoring Analytics Node...")
                     time.sleep(0.5)
                     st.rerun()
                 elif db is None:
@@ -258,7 +242,7 @@ if not st.session_state.logged_in:
                                 "phone": reg_phone,
                                 "password": reg_pass,
                                 "tier": "free",
-                                "payment_key": "None" # Instantiates empty key slot
+                                "payment_key": "None" 
                             }).execute()
                             st.success("Registration complete. Switching to login...")
                             time.sleep(1)
@@ -889,7 +873,8 @@ else:
             "Supply Chain Disruption Model", 
             "Launch Volatility Matrix",
             "🚨 AI Review Competitor Defect Miner",        
-            "📊 Dynamic Elasticity Optimization Curve"     
+            "📊 Dynamic Elasticity Optimization Curve",
+            "👤 My Profile" # INTEGRATED PROFILE AUDIT SLOCK RIGHT INTO SECONDARY WORKSPACE
         ])
         
         ecom_df = fetch_ecom_market_data(target_keyword)
@@ -909,6 +894,56 @@ else:
             col4.metric("Product Opportunity Rating", f"{ecom_opportunity_score}/100")
             st.subheader("Historical Category Floor Value Tracking")
             st.line_chart(ecom_df['Price'])
+
+        # --- INTEGRATED MY PROFILE AUDIT LINK INSIDE ECOM GRAPH ---
+        elif ecom_nav == "👤 My Profile":
+            user_initial = st.session_state.current_user.get('name', '?')[0].upper()
+            st.markdown(f"""
+            <div style="background: linear-gradient(135deg, {grad_1} 0%, {card_bg} 100%); padding: 40px; border-radius: 12px; border: 1px solid {border_col}; margin-bottom: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+                <div style="display: flex; align-items: center; gap: 20px;">
+                    <div style="width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #00d2ff 0%, #3a7bd5 100%); display: flex; justify-content: center; align-items: center; color: white; font-size: 36px; font-weight: bold; box-shadow: 0 4px 10px rgba(58, 123, 213, 0.4);">
+                        {user_initial}
+                    </div>
+                    <div>
+                        <h1 style="color:{text_color}; margin:0; letter-spacing: 1px;">{st.session_state.current_user.get('name', 'User')}</h1>
+                        <p style="color:#00CC96; font-size: 14px; margin-top:5px; font-weight: 600;">STATUS Clearance level: {user_tier.upper()}</p>
+                    </div>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            if user_tier == "admin":
+                st.markdown("### 👑 Master Admin Portal: Customer Premium Audit Log")
+                if db is None:
+                    st.info("Operating inside safe sandbox. Populate live secret credentials to read real transaction nodes.")
+                    mock_users = pd.DataFrame({
+                        "Customer Identity Name": ["Rajesh Sharma", "Amit Patel", "Vikram Singh", "Priya Nair"],
+                        "Email Connection Address": ["rajesh@trade.in", "amit@ecomintel.com", "v.singh@quant.co", "priya@growth.in"],
+                        "Paid Verification Key (UPI Ref)": ["362241567890", "None (Trial Model)", "369914228965", "None (Trial Model)"],
+                        "Platform Entitlement Tier": ["PRO PREMIUM 🟢", "FREE TRIAL 🔴", "PRO PREMIUM 🟢", "FREE TRIAL 🔴"]
+                    })
+                    st.table(mock_users)
+                else:
+                    try:
+                        records = db.table("users").select("name, email, payment_key, tier").execute()
+                        if records.data:
+                            formatted_records = []
+                            for u in records.data:
+                                tier_tag = "PRO PREMIUM 🟢" if u.get('tier') == 'pro' else "SUPER ROOT ADMIN 👑" if u.get('tier') == 'admin' else "FREE TRIAL 🔴"
+                                formatted_records.append({
+                                    "Customer Identity Name": u.get('name', 'N/A'),
+                                    "Email Connection Address": u.get('email', 'N/A'),
+                                    "Paid Verification Key (UPI Ref)": u.get('payment_key', 'None'),
+                                    "Platform Entitlement Tier": tier_tag
+                                })
+                            st.dataframe(pd.DataFrame(formatted_records), use_container_width=True)
+                        else: st.caption("No custom customer nodes recorded inside database tables yet.")
+                    except Exception as e: st.error(f"Error communicating with user table structures: {e}")
+
+            if st.button("🛑 Secure Log Out & Terminate Session", type="primary"):
+                st.session_state.logged_in = False
+                st.session_state.current_user = None
+                st.rerun()
 
         # === SUBSCRIPTION GATEWAY ENFORCEMENT ON RECURRING CHANNELS ===
         elif user_tier not in ["pro", "admin"]:
@@ -964,7 +999,7 @@ else:
                 st.success("Logistics corridors operating efficiently within expected standard deviations.")
 
         elif ecom_nav == "Launch Volatility Matrix":
-            st.header("💧 Keyword Density & Market Liquidity Indicators")
+            st.header("📊 Keyword Density & Market Liquidity Indicators")
             density_pct = random.randint(20, 99)
             st.subheader("Competitor Pay-Per-Click Ad Squeeze Density")
             st.progress(density_pct)
